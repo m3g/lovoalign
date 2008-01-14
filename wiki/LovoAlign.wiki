@@ -1,0 +1,15 @@
+=== LovoAlign ===
+
+LovoAlign is a new protein structural alignment package. The methods used for structural alignment are based on Low Order Value Optimization (LOVO) theory. The use of LOVO theory led to the development of fast convergent algorithms that provide very robust optimization of scoring functions.
+
+Numerical experiments show that the LOVO algorithms implemented here provide the most reliable optimization of the STRUCTAL alignment while being very fast.
+
+Simple input parameters can be used to align two structures, a single structure to a whole database, or to perform an all-on-all database structural alignment. 
+
+Further information can be found at: 
+
+[http://www.ime.unicamp.br/~martinez/lovoalign]http://www.ime.unicamp.br/~martinez/lovoalign
+
+This site is a current and subversion repository for the codes.
+
+
