@@ -8,8 +8,6 @@ Simple input parameters can be used to align two structures, a single structure 
 
 Further information can be found at: 
 
-[http://www.ime.unicamp.br/~martinez/lovoalign]http://www.ime.unicamp.br/~martinez/lovoalign
+http://www.ime.unicamp.br/~martinez/lovoalign
 
 This site is a current and subversion repository for the codes.
-
-
