@@ -27,7 +27,7 @@ FLAGS = -O3 -ffast-math
 ifeq ($(FORTRAN),AUTO)
 FORTRAN = $(FC)
 endif 
-FILES = lovoalign.f90 flashsort.f jacobi.f optim.f 
+FILES = lovoalign.f90 title.f90 flashsort.f jacobi.f optim.f 
 BIN=../bin
 lovoalign : $(FILES)
 	@echo " ------------------------------------------------------ " 
@@ -46,4 +46,6 @@ devel: $(FILES)
 	@echo " LovoAlign succesfully built." 
 	@echo " ------------------------------------------------------ " 
 clean:
+	\rm -f *.mod *.o
+cleanall:
 	\rm -f $(BIN)/lovoalign *.mod *.o

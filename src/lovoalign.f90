@@ -76,15 +76,6 @@ module ioformat
 
   implicit none
   character(len=*), parameter :: dash_line = "('  ',71('-'))"
-  character(len=*), parameter :: title = "(/,&
-     &'  ',71('#'),/,&
-     &/,&
-     &'                           PROGRAM: LOVOALIGN',/,&
-     &'                   Low Order Value Optimization Methods',/,&
-     &'                          for Protein Alignment',/,&
-     &'                              Version 15.054 ',/&
-     &/,&
-     &'  ',71('#'))"
 
 end module ioformat
 
@@ -1815,7 +1806,7 @@ subroutine getpars(method,gap,maxit,dtri,&
     if(method.eq.4) gap = 0.
   end if 
 
-  if(iprint.eq.1) write(*,title)
+  if(iprint.eq.1) call title()
 
 end subroutine getpars
 
@@ -2597,7 +2588,7 @@ subroutine help
 
   use ioformat
   implicit none
-  write(*,title)
+  call title()
   write(*,*) 
   write(*,*) ' How to align two proteins: '
   write(*,*) ' ./lovoalign -p1 prot1.pdb -p2 prot2.pdb -o p1aligned.pdb'
