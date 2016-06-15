@@ -1,0 +1,36 @@
+#
+# LovoAlign.sh script input file example
+#
+
+# PDB file of first protein (the one that will be "moved")
+proteinA proteinA.pdb
+
+# Atoms to be aligned on first protein
+selA chain A and name CA
+
+# PDB file of the second protein
+proteinB proteinB.pdb
+
+# Atoms to be aligned in the second protein
+selB chain B and name CA
+
+# File name (PDB) for the output file, containing the first
+# protein aligned to the second protein
+output AalignedtoB.pdb
+
+# Gap: The greater this number, the lower the number of gaps
+# of the alignment (generally 0. for the NON-BIJECTIVE score)
+gap 10.
+
+# Type of score: 
+# 1: Structal Score. 
+# 2: TM-Score 
+# 3: TRIANGULAR SCORE 
+# 4: NON-BIJECTIVE TRIANGULAR SCORE (for non-sequential alignments)
+score 1
+
+# Path to temporary files (default is current directory)
+tmp .
+
+# Supress writing of bijection (true/false)
+seqoff false
