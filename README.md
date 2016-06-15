@@ -1,4 +1,4 @@
-### lovoalign ###
+### LovoAlign ###
 
 Lovoalign is a structural alignment package. The methods used for structural alignment are based on Low Order Value Optimization (LOVO) theory. The use of LOVO theory led to the development of fast convergent algorithms that provide very robust optimization of scoring functions.
 
