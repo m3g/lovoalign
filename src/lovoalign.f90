@@ -200,7 +200,6 @@ program lovoalign
 
     ! Read protein coordinates
 
-    error = .false.
     call readfile(protea,prota,chaina,beta1,ocup1,&
                  na,resa,numa,all,error)
     call readfile(proteb,protb,chainb,beta2,ocup2,&
@@ -268,7 +267,6 @@ program lovoalign
 
     ! Read file of protein B (the specified protein will be allways B)
 
-    error = .false.
     call readfile(protea,protb,chainb,beta1,ocup1,&
                   nb,resb,numb,all,error)
     proteb = protea
@@ -293,7 +291,6 @@ program lovoalign
       ! Read file for protein A
 
       protea = pdbfiles(i)
-      error = .false.
       call readfile(protea,prota,chaina,beta2,ocup2,&
                     na,resa,numa,all,error)
 
@@ -361,7 +358,6 @@ program lovoalign
 
       ! Read protein file B
 
-      error = .false.
       proteb = pdbfiles(i)
       call readfile(proteb,protb,chainb,beta1,ocup1,&
                     nb,resb,numb,all,error)
@@ -1893,6 +1889,8 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,na,resa,numa,all,error)
   character(len=1) :: chaina, resa(maxatom), letter
   character(len=3) :: resid
   character(len=200) :: protea, record
+
+  error = .false. 
 
   !
   ! Trying to read coordinates in the simple xyz (only coordinates) format
