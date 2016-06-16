@@ -59,6 +59,7 @@
 !    -dtri [real]        Cutoff distance for triangular score (default: 3.d0)
 !                        and for small RMSD cutoff output for other methods.
 !    -seqoff             Do not write sequence alignment
+!    -seqfix             Use a fixed sequence alignment (1-1,2-2,...)
 !
 
 ! Module that set maximum problem size
@@ -96,7 +97,7 @@ program lovoalign
             pseudoa(maxatom,3), pseudob(maxatom,3), dtri, &
             disord(maxatom-1,maxatom)
   real :: etime, tarray(2), time0 
-  logical :: all, error, output, useini, seqoff
+  logical :: all, error, output, useini, seqoff, seqfix
   character(len=1) :: chaina, chainb, resa(maxatom), resb(maxatom)
   character(len=200) :: record, protea, proteb, pdblist, pdbfiles(maxfiles), &
                         pdbout
@@ -151,6 +152,7 @@ program lovoalign
   ocup2 = .false.
   all = .false.
   seqoff = .false.
+  seqfix = .false.
   useini = .true.
   dtri = 3.d0
  
@@ -192,7 +194,7 @@ program lovoalign
 
     if(narg.gt.0) call getpars(method,gap,maxit,dtri,&
                                protea,proteb,chaina,chainb,iprint,&
-                               all,seqoff,pdblist,output,pdbout,&
+                               all,seqoff,seqfix,pdblist,output,pdbout,&
                                useini,beta1,beta2,ocup1,ocup2)
     if(iprint.eq.0) write(*,header_list) dtri
 
@@ -221,7 +223,7 @@ program lovoalign
     ! proteins ready for structural alignment
 
     if(useini) then
-      call initial(pseudoa,pseudob,na,nb,prota,protb)
+      call initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
     else
       call tocm(prota,protb,na,nb)
     end if
@@ -234,7 +236,7 @@ program lovoalign
                                         
     call protall(prota,protb,na,nb,method,gap,maxit,dtri,&
                  iprint,disord,indisord,&
-                 protea,proteb,resa,resb,numa,numb,seqoff)
+                 protea,proteb,resa,resb,numa,numb,seqoff,seqfix)
 
     ! If required, print output file with protein A aligned to protein B
 
@@ -259,7 +261,7 @@ program lovoalign
 
     call getpars(method,gap,maxit,dtri,&
                  protea,proteb,chaina,chainb,iprint,&
-                 all,seqoff,&
+                 all,seqoff,seqfix,&
                  pdblist,output,pdbout,useini,&
                  beta1,beta2,ocup2,ocup2)
     if(iprint.eq.0) write(*,header_list) dtri
@@ -310,7 +312,7 @@ program lovoalign
         ! Compute initial point
 
         if(useini) then
-          call initial(pseudoa,pseudob,na,nb,prota,protb)
+          call initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
         else
           call tocm(prota,protb,na,nb)
         end if
@@ -321,7 +323,7 @@ program lovoalign
                      gap,maxit,dtri,&
                      iprint,disord,indisord,&
                      protea,proteb,resa,resb,numa,numb,&
-                     seqoff)
+                     seqoff,seqfix)
 
       end if
 
@@ -339,7 +341,7 @@ program lovoalign
 
     call getpars(method,gap,maxit,dtri,&
                  protea,proteb,chaina,chainb,iprint,&
-                 all,seqoff,&
+                 all,seqoff,seqfix,&
                  pdblist,output,pdbout,useini,&
                  beta1,beta2,ocup1,ocup2)
     if(iprint.eq.0) write(*,header_list) dtri
@@ -399,7 +401,7 @@ program lovoalign
             ! Compute initial point
             
             if(useini) then 
-              call initial(pseudoa,pseudob,na,nb,prota,protb)
+              call initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
             else
               call tocm(prota,protb,na,nb)
             end if
@@ -409,7 +411,7 @@ program lovoalign
             call protall(prota,protb,na,nb,method,&
                          gap,maxit,dtri,&
                          iprint,disord,indisord,protea,proteb,&
-                         resa,resb,numa,numb,seqoff)
+                         resa,resb,numa,numb,seqoff,seqfix)
 
           end if
         end do
@@ -450,7 +452,7 @@ subroutine protall(prota,protb,na,nb,method,&
                    gap,maxit,dtri,&
                    iprint,disord,indisord,&
                    protea,proteb,resa,resb,numa,numb,&
-                   seqoff)
+                   seqoff,seqfix)
 
   use sizes
   use ioformat
@@ -471,7 +473,7 @@ subroutine protall(prota,protb,na,nb,method,&
   character(len=1) :: resa(maxatom), resb(maxatom)
   character(len=200) :: protea, proteb
   character(len=200) :: title_format, data_format 
-  logical :: seqoff
+  logical :: seqoff, seqfix
   external :: structal, tmscore
 
   title_format = "(t3,'ITER',t20,'SCORE',t30,'GRADIENT NORM',&
@@ -513,7 +515,8 @@ subroutine protall(prota,protb,na,nb,method,&
     ! Compute the DP bijection and the score at initial point          
 
     call structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                  bijscore,ngaps,score)
+                  bijscore,ngaps,score,seqfix)
+
     nef = nef + 1
     if(iprint.eq.1) write(*,data_format) it, score, 0.d0, nbij, ngaps,nef
           
@@ -527,7 +530,7 @@ subroutine protall(prota,protb,na,nb,method,&
       ! Perform a newton step to maximize the score given the bijection
 
       call newton(structal,na,nb,prota,protb,score,bije,bijscore,&
-                  dzero2,scale,nbij,gap,ngaps,nef,gnor)
+                  dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
 
       ! Output regular iteration data
           
@@ -572,7 +575,7 @@ subroutine protall(prota,protb,na,nb,method,&
     ! Compute the DP bijection and the score at initial point          
 
     call tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                 bijscore,ngaps,score)
+                 bijscore,ngaps,score,seqfix)
     nef = nef + 1
     if(iprint.eq.1) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
           
@@ -586,7 +589,7 @@ subroutine protall(prota,protb,na,nb,method,&
       ! Perform a newton step to maximize the score given the bijection
 
       call newton(tmscore,na,nb,prota,protb,score,bije,bijscore,&
-                  dzero2,scale,nbij,gap,ngaps,nef,gnor)
+                  dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
 
       ! Output regular iteration data
           
@@ -620,7 +623,7 @@ subroutine protall(prota,protb,na,nb,method,&
     ! Compute the correspondence and the score at initial point          
 
     call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
-                bijscore,ngaps,score)
+                bijscore,ngaps,score,seqfix)
     nef = nef + 1
     if(iprint.eq.1) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
           
@@ -637,7 +640,8 @@ subroutine protall(prota,protb,na,nb,method,&
 
       ! Compute the DP bijection and the score at the new orientation
 
-      call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,bijscore,ngaps,score)
+      call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,bijscore,ngaps,&
+                  score,seqfix)
 
       ! Output regular iteration data
           
@@ -778,7 +782,7 @@ end subroutine protall
 !                                                                   !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine initial(pseudoa,pseudob,na,nb,prota,protb)
+subroutine initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
 
   use sizes
   implicit none
@@ -786,6 +790,9 @@ subroutine initial(pseudoa,pseudob,na,nb,prota,protb)
   double precision :: pseudoa(maxatom,3), pseudob(maxatom,3), gap,&
                       dzero2, bijscore(maxatom), score,&
                       prota(maxatom,3), protb(maxatom,3)
+  logical :: seqfix
+
+  if ( seqfix ) return
 
   if(min(na,nb).le.5) then
     write(*,*) ' Too few atoms. Ignoring pseudoprot initial point.'
@@ -800,7 +807,7 @@ subroutine initial(pseudoa,pseudob,na,nb,prota,protb)
   ! Initialization based on internal distances and dynamic programming
 
   call structal(pseudoa,pseudob,na-3,nb-3,dzero2,gap,bije,nbij,&
-                bijscore,ngaps,score)
+                bijscore,ngaps,score,seqfix)
 
   do i = 1, nbij
     bije(i,1) = bije(i,1) + 1
@@ -1105,7 +1112,7 @@ end subroutine moveprot
 !
 
 subroutine structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                    bijscore,ngaps,score)
+                    bijscore,ngaps,score,seqfix)
 
   use sizes
   implicit none
@@ -1113,6 +1120,25 @@ subroutine structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
   double precision :: prota(maxatom,3), protb(maxatom,3), dzero2,&
                       dist, score, scorin(maxatom,maxatom), gap,&
                       bijscore(maxatom)
+  logical :: seqfix
+
+  ! If using a fixed bijection, just compute score and return
+  
+  if ( seqfix ) then
+    score = 0.d0
+    do i = 1, na
+      dist = (prota(i,1) - protb(i,1))**2 &
+           + (prota(i,2) - protb(i,2))**2 &
+           + (prota(i,3) - protb(i,3))**2
+      bijscore(i) = 20.d0 / ( 1.d0 + dist / dzero2 )
+      score = score + bijscore(i)
+      bije(i,1) = i
+      bije(i,2) = i
+    end do
+    nbij = na
+    ngaps = 0
+    return
+  end if
 
   ! Computes individual scores for all pairs
 
@@ -1158,7 +1184,7 @@ end subroutine structal
 !
 
 subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                   bijscore,ngaps,score)
+                   bijscore,ngaps,score,seqfix)
 
   use sizes
   implicit none
@@ -1166,6 +1192,25 @@ subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
   double precision prota(maxatom,3), protb(maxatom,3), dzero2,&
                    dist, score, scorin(maxatom,maxatom), gap,&
                    bijscore(maxatom)
+  logical :: seqfix
+
+  ! If using a fixed bijection, just compute score and return
+  
+  if ( seqfix ) then
+    score = 0.d0
+    do i = 1, na
+      dist = (prota(i,1) - protb(i,1))**2 &
+           + (prota(i,2) - protb(i,2))**2 &
+           + (prota(i,3) - protb(i,3))**2
+      score = score + 1.d0 / ( 1.d0 + dist / dzero2 )
+      bije(i,1) = i
+      bije(i,2) = i
+    end do
+    score = score / dfloat(na)
+    nbij = na
+    ngaps = 0
+    return
+  end if
 
   ! Computes individual scores for all pairs
 
@@ -1213,7 +1258,7 @@ end subroutine tmscore
 !
 
 subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
-                  bijscore,ngaps,score)
+                  bijscore,ngaps,score,seqfix)
 
   use sizes
   implicit none
@@ -1222,6 +1267,24 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
   double precision :: prota(maxatom,3), protb(maxatom,3), dtri2,&
                       dist, score, scorin(maxatom,maxatom), gap,&
                       bijscore(maxatom)
+  logical :: seqfix
+
+  ! If using a fixed bijection, just compute score and return
+  
+  if ( seqfix ) then
+    score = 0.d0
+    do i = 1, na
+      dist = (prota(i,1) - protb(i,1))**2 &
+           + (prota(i,2) - protb(i,2))**2 &
+           + (prota(i,3) - protb(i,3))**2
+      score = score + dmax1(0.d0, 1.d0 - dist / dtri2)
+      bije(i,1) = i
+      bije(i,2) = i
+    end do
+    nbij = na
+    ngaps = 0
+    return
+  end if
 
   ! Computes individual scores for all pairs
 
@@ -1700,7 +1763,7 @@ end function dist
 
 subroutine getpars(method,gap,maxit,dtri,&
                    protea,proteb,chaina,chainb,iprint,&
-                   all,seqoff,&
+                   all,seqoff,seqfix,&
                    pdblist,output,pdbout,useini,beta1,beta2,&
                    ocup1,ocup2)
  
@@ -1713,6 +1776,7 @@ subroutine getpars(method,gap,maxit,dtri,&
   character(len=1) :: chaina, chainb
   character(len=200) :: protea, proteb, pdblist, keyword, value, pdbout
   logical :: output, all, seqoff, useini, beta1, beta2, ocup1, ocup2
+  logical :: seqfix
 
   ! Reading the command line specifications
 
@@ -1787,6 +1851,9 @@ subroutine getpars(method,gap,maxit,dtri,&
       i = i - 1
     else if(keyword(1:length(keyword)).eq.'-seqoff') then
       seqoff = .true.
+      i = i - 1
+    else if(keyword(1:length(keyword)).eq.'-seqfix') then
+      seqfix = .true.
       i = i - 1
     else if(keyword(1:length(keyword)).eq.'-noini') then
       useini = .false.
@@ -2085,8 +2152,9 @@ integer function ic(string)
   character(len=200) :: string
 
   ic = length(string)   
-  do while(string(ic:ic).ne.'/'.and.string(ic:ic).ne.'\\'.and.ic.gt.0)
+  do while(string(ic:ic).ne.'/'.and.string(ic:ic).ne.'\\')
     ic = ic - 1
+    if ( ic == 0 ) exit
   end do
   ic = ic + 1
 

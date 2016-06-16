@@ -6,7 +6,7 @@ c                                c
 cccccccccccccccccccccccccccccccccc 
 
       subroutine newton(evalf,na,nb,prota,protb,score,bije,bijscore,
-     +                  dzero2,scale,nbij,gap,ngaps,nef,gnor)
+     +                  dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
         
       use sizes
       implicit none
@@ -18,6 +18,7 @@ cccccccccccccccccccccccccccccccccc
      +                 factor2, protrial(maxatom,3), x(6), gap, 
      +                 dzero2, tol, scale, bijscore(maxatom)
       external evalf
+      logical seqfix
 
 c Maximum size of step x and convergence tolerance
 
@@ -59,7 +60,7 @@ c  Compute trial protein A, called protrial here
 c  Compute score at trial point
                                               
         call evalf(protrial,protb,na,nb,dzero2,gap,bije,nbij,
-     +             bijscore,ngaps,scortrial)
+     +             bijscore,ngaps,scortrial,seqfix)
         nef = nef + 1
         ared = scortrial - score 
       
