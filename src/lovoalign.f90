@@ -37,29 +37,30 @@
 !                       for database comparisons
 !
 ! Options:
-!    -p1 [filename]      Set file of first protein
-!    -p2 [filename]      Set file of target protein
-!    -c1 [character]     Chain to be considered on first protein
-!    -c2 [character]     Chain to be considered on second protein
-!    -beta1              Consider atoms with beta > 0 on first protein
-!    -beta2              Consider atoms with beta > 0 on second protein
-!    -ocup1              Consider atoms with occupancy > 0 on first protein
-!    -ocup2              Consider atoms with occupancy > 0 on second protein
-!    -m 1                Maximize STRUCTAL score
-!    -m 2                Maximize TM-SCORE
-!    -m 3                Optimize TRIANGULAR score
-!    -m 4                Optimize the NON-BIJECTIVE TRIANGULAR score
-!    -pdblist [filename] Sets file containing protein list
-!    -noini              Do not use pseudoprotein initial point
-!    -maxit [integer]    Maximum number of outer iterations
-!    -g [real]           Penalization for gaps
-!    -print 0 or 1       Concise or extensive output
-!    -all                Consider all atoms (not only CAs)
-!    -o [filename]       Sets the name for output file 
-!    -dtri [real]        Cutoff distance for triangular score (default: 3.d0)
-!                        and for small RMSD cutoff output for other methods.
-!    -seqoff             Do not write sequence alignment
-!    -seqfix             Use a fixed sequence alignment (1-1,2-2,...)
+!    -p1 [filename]        Set file of first protein
+!    -p2 [filename]        Set file of target protein
+!    -c1 [character]       Chain to be considered on first protein
+!    -c2 [character]       Chain to be considered on second protein
+!    -beta1                Consider atoms with beta > 0 on first protein
+!    -beta2                Consider atoms with beta > 0 on second protein
+!    -ocup1                Consider atoms with occupancy > 0 on first protein
+!    -ocup2                Consider atoms with occupancy > 0 on second protein
+!    -m 1                  Maximize STRUCTAL score
+!    -m 2                  Maximize TM-SCORE
+!    -m 3                  Optimize TRIANGULAR score
+!    -m 4                  Optimize the NON-BIJECTIVE TRIANGULAR score
+!    -pdblist [filename]   Sets file containing protein list
+!    -noini                Do not use pseudoprotein initial point
+!    -maxit [integer]      Maximum number of outer iterations
+!    -g [real]             Penalization for gaps
+!    -print 0 or 1         Concise or extensive output
+!    -all                  Consider all atoms (not only CAs)
+!    -o [filename]         Sets the name for output file 
+!    -dtri [real]          Cutoff distance for triangular score (default: 3.d0)
+!                          and for small RMSD cutoff output for other methods.
+!    -gdt_threshold [real] Threshold distance for GDT scores (default: 4.d0)
+!    -seqoff               Do not write sequence alignment
+!    -seqfix               Use a fixed sequence alignment (1-1,2-2,...)
 !
 
 ! Module that set maximum problem size
@@ -95,7 +96,7 @@ program lovoalign
              indisord(maxatom-1,maxatom)
   double precision :: gap, prota(maxatom,3), protb(maxatom,3), &
             pseudoa(maxatom,3), pseudob(maxatom,3), dtri, &
-            disord(maxatom-1,maxatom)
+            disord(maxatom-1,maxatom), gdt_threshold
   real :: etime, tarray(2), time0 
   logical :: all, error, output, useini, seqoff, seqfix
   character(len=1) :: chaina, chainb, resa(maxatom), resb(maxatom)
@@ -155,6 +156,7 @@ program lovoalign
   seqfix = .false.
   useini = .true.
   dtri = 3.d0
+  gdt_threshold = 4.d0
  
   ! Default method
 
@@ -162,10 +164,10 @@ program lovoalign
 
   ! Header for concise output printing
 
-  header_list = "(83('#'),/,&
+  header_list = "(111('#'),/,&
            &'# LOVOALIGN Database output. Version 15.054 ',/&
            &,'# http://www.ime.unicamp.br/~martinez/lovoalign',/,&
-           &83('#'),/,&
+           &111('#'),/,&
            &'# Prot A: Variable protein.',/,&
            &'# Prot B: Target (fixed) protein.',/,&
            &'# SCORE: Best score obtained.',/,&
@@ -173,10 +175,12 @@ program lovoalign
            &'# RMSD: Root mean square deviation of COV atoms.',/,&
            &'# COV2: Number of atoms closer than ',f8.3,' Angstroms.',/,&
            &'# RMSD2: Root mean square deviation of COV2 atoms.',/,&
+           &'# GDT_TM: Global Distance Test (GDT) score.',/,&
+           &'# GDT_HA: High-accuracy GDT score.',/,&
            &'# TIME: Time used in this alignment.',/,&
-           &83('#'),/,&
+           &111('#'),/,&
            &'# Prot A',t16,'Prot B',t35,'SCORE',t46,'COV',t58,'RMSD',&
-           &t64,'COV2',t76,'RMSD2',t90,'TIME')"
+           &t64,'COV2',t76,'RMSD2',t84,'GDT_TM',t93,'GDT_HA',t108,'TIME')"
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !                                                    !
@@ -192,7 +196,7 @@ program lovoalign
 
     ! Read command line parameters
 
-    if(narg.gt.0) call getpars(method,gap,maxit,dtri,&
+    if(narg.gt.0) call getpars(method,gap,maxit,dtri,gdt_threshold,&
                                protea,proteb,chaina,chainb,iprint,&
                                all,seqoff,seqfix,pdblist,output,pdbout,&
                                useini,beta1,beta2,ocup1,ocup2)
@@ -209,7 +213,7 @@ program lovoalign
     ! Printing all data from this run:
       
     if(iprint.eq.1) call printdata(protea,proteb,na,nb,chaina,&
-                                   chainb,method,gap,maxit,dtri,&
+                                   chainb,method,gap,maxit,dtri,gdt_threshold,&
                                    useini)
 
     ! Compute pseudoproteins A and B, d1 is the distance between atom i and
@@ -233,7 +237,7 @@ program lovoalign
 
     ! Performing the structural alignment
                                         
-    call protall(prota,protb,na,nb,method,gap,maxit,dtri,&
+    call protall(prota,protb,na,nb,method,gap,maxit,dtri,gdt_threshold,&
                  iprint,disord,indisord,&
                  protea,proteb,resa,resb,numa,numb,seqoff,seqfix)
 
@@ -258,7 +262,7 @@ program lovoalign
 
     ! Get parameters from the command line
 
-    call getpars(method,gap,maxit,dtri,&
+    call getpars(method,gap,maxit,dtri,gdt_threshold,&
                  protea,proteb,chaina,chainb,iprint,&
                  all,seqoff,seqfix,&
                  pdblist,output,pdbout,useini,&
@@ -299,7 +303,7 @@ program lovoalign
         ! If specificaly required, print data for this problem
       
         if(iprint.eq.1) call printdata(protea,proteb,na,nb,chaina,&
-                                       chainb,method,gap,maxit,dtri,&
+                                       chainb,method,gap,maxit,dtri,gdt_threshold,&
                                        useini)
 
         ! Compute pseudoprotein A for initial point
@@ -317,7 +321,7 @@ program lovoalign
         ! Performing the structural alignment
                                         
         call protall(prota,protb,na,nb,method,&
-                     gap,maxit,dtri,&
+                     gap,maxit,dtri,gdt_threshold,&
                      iprint,disord,indisord,&
                      protea,proteb,resa,resb,numa,numb,&
                      seqoff,seqfix)
@@ -336,7 +340,7 @@ program lovoalign
 
     ! Get parameters from the command line
 
-    call getpars(method,gap,maxit,dtri,&
+    call getpars(method,gap,maxit,dtri,gdt_threshold,&
                  protea,proteb,chaina,chainb,iprint,&
                  all,seqoff,seqfix,&
                  pdblist,output,pdbout,useini,&
@@ -387,7 +391,7 @@ program lovoalign
             ! If specificaly required, print data for this problem
       
             if(iprint.eq.1) call printdata(protea,proteb,na,nb,chaina,&
-                                           chainb,method,gap,maxit,dtri,&
+                                           chainb,method,gap,maxit,dtri,gdt_threshold,&
                                            useini)
  
             ! Compute pseudoprotein A for obtaining initial point
@@ -405,7 +409,7 @@ program lovoalign
             ! Performing the structural alignment
                                         
             call protall(prota,protb,na,nb,method,&
-                         gap,maxit,dtri,&
+                         gap,maxit,dtri,gdt_threshold,&
                          iprint,disord,indisord,protea,proteb,&
                          resa,resb,numa,numb,seqoff,seqfix)
 
@@ -422,9 +426,9 @@ program lovoalign
     write(*,*) ' TOTAL RUNNING TIME: ', time0
     write(*,dash_line)
   else
-    write(*,"(83('#'),/,&
+    write(*,"(111('#'),/,&
               &'# TOTAL RUNNING TIME:',i10,' h ',i6,' min ',f12.4,' s',/,&
-              &83('#'))") int(time0/3600),&
+              &111('#'))") int(time0/3600),&
                           int(mod(time0,3600.)/60),&
                           mod(time0,60.)
   end if
@@ -445,7 +449,7 @@ end program lovoalign
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
               
 subroutine protall(prota,protb,na,nb,method,&
-                   gap,maxit,dtri,&
+                   gap,maxit,dtri,gdt_threshold,&
                    iprint,disord,indisord,&
                    protea,proteb,resa,resb,numa,numb,&
                    seqoff,seqfix)
@@ -458,7 +462,8 @@ subroutine protall(prota,protb,na,nb,method,&
                       bijscore(maxatom), gnor,&
                       score, dzero2, tol, scale,&
                       prevscore, rmsd, rmsd2, dtri, dtri2,&
-                      disord(maxatom-1,maxatom)
+                      disord(maxatom-1,maxatom), gdt_threshold,&
+                      gdt_tm, gdt_ha
   real :: etime, tarray(2), time1
   integer :: maxit, na, nb,&
              bije(maxatom,2),&
@@ -594,11 +599,11 @@ subroutine protall(prota,protb,na,nb,method,&
     end do
   end if
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                !
-! Method 3: Maximize the TRIANGULAR score                        !
-!                                                                !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !                                                                !
+  ! Method 3: Maximize the TRIANGULAR score                        !
+  !                                                                !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   if(method.eq.3) then
 
@@ -716,6 +721,10 @@ subroutine protall(prota,protb,na,nb,method,&
   ! Computing the RMSD of aligned residues at the solution
 
   call getrmsd(prota,protb,bije,nbij,rmsd)
+
+  ! Computing the GDT scores at the solution
+
+  call computegdt(na,nb,prota,protb,bije,nbij,gdt_threshold,gdt_tm,gdt_ha)
  
   ! Printing the final score
 
@@ -735,6 +744,9 @@ subroutine protall(prota,protb,na,nb,method,&
     write(*,dash_line)
     write(*,"(a,f8.4,a,f10.6,a,i6)")&
           '  ATOMS CLOSER THAN ',dtri,' Ang: RMSD: ',rmsd2,' COVERAGE: ', nbij_dtri
+    write(*,"(a,f8.3,t34,a,f8.3)")&
+          '  GDT_TM SCORE: ', gdt_tm, ' GDT_HA SCORE: ', gdt_ha
+
   endif
 
   ! Alignment time
@@ -746,15 +758,15 @@ subroutine protall(prota,protb,na,nb,method,&
   if(iprint.eq.0) then
     if(length(protea)-ic(protea)+1.le.10.and.&
        length(proteb)-ic(proteb)+1.le.10) then
-      write(*,"(t1,a,t12,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),tr1,f12.6)")&
+      write(*,"(t1,a,t12,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
               protea(ic(protea):length(protea)),&
               proteb(ic(proteb):length(proteb)),&
-              score, nbij, rmsd, nbij_dtri, rmsd2, time1
+              score, nbij, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
     else
-      write(*,"(t1,a,tr1,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),tr1,f12.6)")&
+      write(*,"(t1,a,tr1,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
               protea(ic(protea):length(protea)),&
               proteb(ic(proteb):length(proteb)),&
-              score, nbij, rmsd, nbij_dtri, rmsd2, time1
+              score, nbij, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
     end if
   end if
  
@@ -1517,6 +1529,44 @@ subroutine getrmsd(prota,protb,bije,nbij,rmsd)
 end subroutine getrmsd
 
 !
+! Subroutine that computes the GDT scores
+!
+
+subroutine computegdt(na,nb,prota,protb,bije,nbij,gdt_threshold,gdt_tm,gdt_ha)
+ 
+  use sizes
+  implicit none
+  integer :: i, nbij, bije(maxatom,2), na, nb
+  double precision :: gdt_tm, gdt_ha, gdt_threshold, gdt_ha_threshold
+  double precision :: prota(maxatom,3), protb(maxatom,3), dist
+
+  gdt_ha_threshold = gdt_threshold / 2.d0
+  gdt_tm = 0.d0
+  gdt_ha = 0.d0
+  do i = 1, nbij
+    dist = (prota(bije(i,1),1) - protb(bije(i,2),1))**2 &
+         + (prota(bije(i,1),2) - protb(bije(i,2),2))**2 &
+         + (prota(bije(i,1),3) - protb(bije(i,2),3))**2
+    dist = dsqrt(dist)
+
+    ! GDT score (with threshold = 4.d0 Angs by default)
+    if ( dist < (gdt_threshold/4.d0) ) gdt_tm = gdt_tm + 1.d0 
+    if ( dist < (gdt_threshold/2.d0) ) gdt_tm = gdt_tm + 1.d0
+    if ( dist < gdt_threshold ) gdt_tm = gdt_tm + 1.d0
+    if ( dist < (2.d0*gdt_threshold) ) gdt_tm = gdt_tm + 1.d0
+
+    ! GDT-"High Accuracy" score (with threshold = 2.d0 Angs by default)
+    if ( dist < (gdt_ha_threshold/4.d0) ) gdt_ha = gdt_ha + 1.d0 
+    if ( dist < (gdt_ha_threshold/2.d0) ) gdt_ha = gdt_ha + 1.d0
+    if ( dist < gdt_ha_threshold ) gdt_ha = gdt_ha + 1.d0
+    if ( dist < (2.d0*gdt_ha_threshold) ) gdt_ha = gdt_ha + 1.d0
+  end do
+  gdt_tm = gdt_tm / (4.d0*min(na,nb))
+  gdt_ha = gdt_ha / (4.d0*min(na,nb))
+
+end subroutine computegdt
+
+!
 ! Subroutine getrmsd2: Computes the rmsd given the bijection,
 !                      only for atoms which are closer than
 !                      some tolerance deffined by the dtri parameter
@@ -1757,7 +1807,7 @@ end function dist
 ! Subroutine that reads the parameters from the command line
 ! 
 
-subroutine getpars(method,gap,maxit,dtri,&
+subroutine getpars(method,gap,maxit,dtri,gdt_threshold,&
                    protea,proteb,chaina,chainb,iprint,&
                    all,seqoff,seqfix,&
                    pdblist,output,pdbout,useini,beta1,beta2,&
@@ -1768,7 +1818,7 @@ subroutine getpars(method,gap,maxit,dtri,&
   implicit none
 
   integer :: method, maxit, iprint, narg, length, i, ival, iargc, ioerr
-  double precision :: gap, dval, dtri
+  double precision :: gap, dval, dtri, gdt_threshold
   character(len=1) :: chaina, chainb
   character(len=200) :: protea, proteb, pdblist, keyword, value, pdbout
   logical :: output, all, seqoff, useini, beta1, beta2, ocup1, ocup2
@@ -1832,6 +1882,9 @@ subroutine getpars(method,gap,maxit,dtri,&
     else if(keyword(1:length(keyword)).eq.'-dtri') then
       call getarg(i+1,value)
       dtri = dval(value)
+    else if(keyword(1:length(keyword)).eq.'-gdt_threshold') then
+      call getarg(i+1,value)
+      gdt_threshold = dval(value)
     else if(keyword(1:length(keyword)).eq.'-maxit') then
       call getarg(i+1,value)
       maxit = ival(value)
@@ -2614,13 +2667,13 @@ end function letter
 !
 
 subroutine printdata(protea,proteb,na,nb,chaina,&
-                     chainb,method,gap,maxit,dtri,&
+                     chainb,method,gap,maxit,dtri,gdt_threshold,&
                      useini)
 
   use ioformat
   implicit none
   integer :: na, nb, maxit, method, length, ic
-  double precision :: gap, dtri 
+  double precision :: gap, dtri, gdt_threshold
   character(len=1) :: chaina, chainb
   character(len=200) :: protea, proteb
   logical :: useini
@@ -2642,6 +2695,7 @@ subroutine printdata(protea,proteb,na,nb,chaina,&
   if(method.eq.3) then
     write(*,*) ' Triangular score with cutoff: ', dtri
   end if
+  write(*,*) ' GDT Threshold: ', gdt_threshold
   write(*,dash_line) 
 
 end subroutine printdata
