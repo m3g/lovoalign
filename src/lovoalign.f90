@@ -1561,8 +1561,8 @@ subroutine computegdt(na,nb,prota,protb,bije,nbij,gdt_threshold,gdt_tm,gdt_ha)
     if ( dist < gdt_ha_threshold ) gdt_ha = gdt_ha + 1.d0
     if ( dist < (2.d0*gdt_ha_threshold) ) gdt_ha = gdt_ha + 1.d0
   end do
-  gdt_tm = gdt_tm / (4.d0*min(na,nb))
-  gdt_ha = gdt_ha / (4.d0*min(na,nb))
+  gdt_tm = 100.d0 * gdt_tm / (4.d0*min(na,nb))
+  gdt_ha = 100.d0 * gdt_ha / (4.d0*min(na,nb))
 
 end subroutine computegdt
 
