@@ -165,7 +165,7 @@ program lovoalign
   ! Header for concise output printing
 
   header_list = "(111('#'),/,&
-           &'# LOVOALIGN Database output. Version 15.054 ',/&
+           & '# LOVOALIGN ',/&
            &,'# http://www.ime.unicamp.br/~martinez/lovoalign',/,&
            &111('#'),/,&
            &'# Prot A: Variable protein.',/,&
