@@ -62,7 +62,7 @@
 !    -seqoff               Do not write sequence alignment
 !    -seqfix               Use a fixed sequence alignment (1-1,2-2,...)
 !    -rmsf [filename]      Write rmsf profile to file.
-!    -rmsftrend [filename] Write rmsf profile trend to file (percentage of pairs
+!    -rmsftrend [filename] Write rmsf profile trend to file (fraction of pairs
 !                          with rmsf smaller than threshold)
 !
 
