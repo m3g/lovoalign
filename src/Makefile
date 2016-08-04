@@ -16,6 +16,7 @@
 FORTRAN = /usr/bin/gfortran
 #
 FLAGS = -O3 -ffast-math 
+#FLAGS = -Wall -fbounds-check
 #
 ###################################################################
 #                                                                 #

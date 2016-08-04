@@ -61,6 +61,9 @@
 !    -gdt_threshold [real] Threshold distance for GDT scores (default: 4.d0)
 !    -seqoff               Do not write sequence alignment
 !    -seqfix               Use a fixed sequence alignment (1-1,2-2,...)
+!    -rmsf [filename]      Write rmsf profile to file.
+!    -rmsftrend [filename] Write rmsf profile trend to file (percentage of pairs
+!                          with rmsf smaller than threshold)
 !
 
 ! Module that set maximum problem size
@@ -83,8 +86,8 @@ module inputpars
   logical :: output, useini
   logical :: all, seqoff, seqfix
   logical :: beta1, beta2, ocup1, ocup2
-  logical :: rmsf, rmsfplot
-  character(len=200) :: rmsfout, rmsfplotout
+  logical :: rmsf, rmsftrend
+  character(len=200) :: rmsfout, rmsftrendout
 
 end module inputpars
 
@@ -716,7 +719,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
   call computegdt(na,nb,prota,protb,bije,nbij,gdt_threshold,gdt_tm,gdt_ha)
   call writermsf(na,nb,prota,protb,bije,nbij,&
-                 numa,rmsf,rmsfout,rmsfplot,rmsfplotout)
+                 numa,rmsf,rmsfout,rmsftrend,rmsftrendout)
  
   ! Printing the final score
 
@@ -1563,27 +1566,51 @@ end subroutine computegdt
 !
 
 subroutine writermsf(na,nb,prota,protb,bije,nbij,&
-                     numa,rmsf,rmsfout,rmsfplot,rmsfplotout)
+                     numa,rmsf,rmsfout,rmsftrend,rmsftrendout)
 
   use sizes
+  use ioformat
   implicit none
-  integer i, nbij, bije(maxatom,2), na, nb, numa(maxatom)
+  integer i, j, nbij, bije(maxatom,2), na, nb, numa(maxatom), trendlist(100)
   double precision ::prota(maxatom,3), protb(maxatom,3), dist
-  logical :: rmsf, rmsfplot
-  character(len=200) :: rmsfout, rmsfplotout
+  logical :: rmsf, rmsftrend
+  character(len=200) :: rmsfout, rmsftrendout
 
   if ( rmsf ) then
+    do i = 1, 100
+      trendlist(i) = 0
+    end do
     open(10,file=rmsfout)
-    write(10,"('# RESIDUE_NUMBER      RMSF')")
+    write(10,"('# RESIDUE_NUMBER             RMSF')")
     do i = 1, nbij
       dist = (prota(bije(i,1),1) - protb(bije(i,2),1))**2 &
            + (prota(bije(i,1),2) - protb(bije(i,2),2))**2 &
            + (prota(bije(i,1),3) - protb(bije(i,2),3))**2
       dist = dsqrt(dist)
-      write(10,"(tr2,i8,tr5,f10.5)") numa(bije(i,1)), dist 
+
+      j = 100
+      do while( dble(j) / 2.d0 > dist )  
+        trendlist(j) = trendlist(j) + 1
+        j = j - 1
+      end do
+      write(10,"(tr8,i8,tr5,f12.5)") numa(bije(i,1)), dist 
     end do
     close(10)
+    write(*,dash_line)
     write(*,*) ' Wrote RMSF data file: ', trim(adjustl(rmsfout))
+  end if
+
+  if ( rmsftrend ) then 
+    open(10,file=rmsftrendout)
+    write(10,"('#            RMSF         FRACTION')")
+    j = 1
+    do while(trendlist(j) < nbij)
+      write(10,"(tr2,f15.5,tr2,f15.5)") dble(j)/2.d0, dble(trendlist(j)) / min(na,nb)
+      j = j + 1
+    end do
+    write(*,dash_line)
+    write(*,*) ' Wrote RMSF-trend data file: ', trim(adjustl(rmsftrendout))
+    close(10)
   end if
 
 end subroutine writermsf
@@ -1915,10 +1942,10 @@ subroutine getpars()
       call getarg(i+1,value)
       rmsf = .true.
       rmsfout = value(1:length(value))
-    else if(keyword(1:length(keyword)).eq.'-rmsfplot') then
+    else if(keyword(1:length(keyword)).eq.'-rmsftrend') then
       call getarg(i+1,value)
-      rmsfplot = .true.
-      rmsfplotout = value(1:length(value))
+      rmsftrend = .true.
+      rmsftrendout = value(1:length(value))
     else if(keyword(1:length(keyword)).eq.'-all') then
       all = .true.
       i = i - 1
