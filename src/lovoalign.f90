@@ -72,6 +72,22 @@ module sizes
 
 end module sizes
 
+! Module containing the input parameters
+
+module inputpars
+
+  integer :: method, maxit, iprint 
+  double precision :: gap, dtri, gdt_threshold 
+  character(len=1) :: chaina, chainb
+  character(len=200) :: protea, proteb, pdblist, pdbout
+  logical :: output, useini
+  logical :: all, seqoff, seqfix
+  logical :: beta1, beta2, ocup1, ocup2
+  logical :: rmsf, rmsfplot
+  character(len=200) :: rmsfout, rmsfplotout
+
+end module inputpars
+
 ! Module containing ahestetic formats
 
 module ioformat
@@ -88,22 +104,21 @@ end module ioformat
 program lovoalign
 
   use sizes
+  use inputpars
   use ioformat
   implicit none
-  integer :: i, j, narg, mode, method, maxit, iprint, &
+  integer :: i, j, narg, mode, &
              na, nb, length, ic, iargc, &
              nfiles, numa(maxatom), numb(maxatom), &
              indisord(maxatom-1,maxatom)
-  double precision :: gap, prota(maxatom,3), protb(maxatom,3), &
-            pseudoa(maxatom,3), pseudob(maxatom,3), dtri, &
-            disord(maxatom-1,maxatom), gdt_threshold
+  double precision :: prota(maxatom,3), protb(maxatom,3), &
+            pseudoa(maxatom,3), pseudob(maxatom,3), &
+            disord(maxatom-1,maxatom) 
   real :: etime, tarray(2), time0 
-  logical :: all, error, output, useini, seqoff, seqfix
-  character(len=1) :: chaina, chainb, resa(maxatom), resb(maxatom)
-  character(len=200) :: record, protea, proteb, pdblist, pdbfiles(maxfiles), &
-                        pdbout
+  logical :: error
+  character(len=1) :: resa(maxatom), resb(maxatom)
+  character(len=200) :: record, pdbfiles(maxfiles)
   character(len=1000) :: header_list
-  logical :: beta1, beta2, ocup1, ocup2
 
   ! Computing running time
 
@@ -196,10 +211,7 @@ program lovoalign
 
     ! Read command line parameters
 
-    if(narg.gt.0) call getpars(method,gap,maxit,dtri,gdt_threshold,&
-                               protea,proteb,chaina,chainb,iprint,&
-                               all,seqoff,seqfix,pdblist,output,pdbout,&
-                               useini,beta1,beta2,ocup1,ocup2)
+    if(narg.gt.0) call getpars()
     if(iprint.eq.0) write(*,header_list) dtri
 
     ! Read protein coordinates
@@ -237,9 +249,7 @@ program lovoalign
 
     ! Performing the structural alignment
                                         
-    call protall(prota,protb,na,nb,method,gap,maxit,dtri,gdt_threshold,&
-                 iprint,disord,indisord,&
-                 protea,proteb,resa,resb,numa,numb,seqoff,seqfix)
+    call protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
     ! If required, print output file with protein A aligned to protein B
 
@@ -262,11 +272,7 @@ program lovoalign
 
     ! Get parameters from the command line
 
-    call getpars(method,gap,maxit,dtri,gdt_threshold,&
-                 protea,proteb,chaina,chainb,iprint,&
-                 all,seqoff,seqfix,&
-                 pdblist,output,pdbout,useini,&
-                 beta1,beta2,ocup2,ocup2)
+    call getpars()
     if(iprint.eq.0) write(*,header_list) dtri
 
     ! Read file of protein B (the specified protein will be allways B)
@@ -320,11 +326,7 @@ program lovoalign
 
         ! Performing the structural alignment
                                         
-        call protall(prota,protb,na,nb,method,&
-                     gap,maxit,dtri,gdt_threshold,&
-                     iprint,disord,indisord,&
-                     protea,proteb,resa,resb,numa,numb,&
-                     seqoff,seqfix)
+        call protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
       end if
 
@@ -340,11 +342,7 @@ program lovoalign
 
     ! Get parameters from the command line
 
-    call getpars(method,gap,maxit,dtri,gdt_threshold,&
-                 protea,proteb,chaina,chainb,iprint,&
-                 all,seqoff,seqfix,&
-                 pdblist,output,pdbout,useini,&
-                 beta1,beta2,ocup1,ocup2)
+    call getpars()
     if(iprint.eq.0) write(*,header_list) dtri
 
     ! Read the list of pdb files
@@ -408,10 +406,7 @@ program lovoalign
 
             ! Performing the structural alignment
                                         
-            call protall(prota,protb,na,nb,method,&
-                         gap,maxit,dtri,gdt_threshold,&
-                         iprint,disord,indisord,protea,proteb,&
-                         resa,resb,numa,numb,seqoff,seqfix)
+            call protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
           end if
         end do
@@ -448,33 +443,28 @@ end program lovoalign
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
               
-subroutine protall(prota,protb,na,nb,method,&
-                   gap,maxit,dtri,gdt_threshold,&
-                   iprint,disord,indisord,&
-                   protea,proteb,resa,resb,numa,numb,&
-                   seqoff,seqfix)
+subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb) 
 
   use sizes
+  use inputpars
   use ioformat
   implicit none
 
-  double precision :: dzero, gap, prota(maxatom,3), protb(maxatom,3),&
+  double precision :: dzero, prota(maxatom,3), protb(maxatom,3),&
                       bijscore(maxatom), gnor,&
                       score, dzero2, tol, scale,&
-                      prevscore, rmsd, rmsd2, dtri, dtri2,&
-                      disord(maxatom-1,maxatom), gdt_threshold,&
+                      prevscore, rmsd, rmsd2, dtri2,&
+                      disord(maxatom-1,maxatom), &
                       gdt_tm, gdt_ha
   real :: etime, tarray(2), time1
-  integer :: maxit, na, nb,&
+  integer :: na, nb,&
              bije(maxatom,2),&
-             ngaps, nbij, method, nef, nbij_dtri,&
-             iprint, length, ic, numa(maxatom),&
+             ngaps, nbij, nef, nbij_dtri,&
+             length, ic, numa(maxatom),&
              numb(maxatom), it,&
              indisord(maxatom-1,maxatom), pair(maxatom)
   character(len=1) :: resa(maxatom), resb(maxatom)
-  character(len=200) :: protea, proteb
   character(len=200) :: title_format, data_format 
-  logical :: seqoff, seqfix
   external :: structal, tmscore
 
   title_format = "(t3,'ITER',t20,'SCORE',t30,'GRADIENT NORM',&
@@ -725,6 +715,8 @@ subroutine protall(prota,protb,na,nb,method,&
   ! Computing the GDT scores at the solution
 
   call computegdt(na,nb,prota,protb,bije,nbij,gdt_threshold,gdt_tm,gdt_ha)
+  call writermsf(na,nb,prota,protb,bije,nbij,&
+                 numa,rmsf,rmsfout,rmsfplot,rmsfplotout)
  
   ! Printing the final score
 
@@ -1567,6 +1559,36 @@ subroutine computegdt(na,nb,prota,protb,bije,nbij,gdt_threshold,gdt_tm,gdt_ha)
 end subroutine computegdt
 
 !
+! Subroutine that writes RMSF data 
+!
+
+subroutine writermsf(na,nb,prota,protb,bije,nbij,&
+                     numa,rmsf,rmsfout,rmsfplot,rmsfplotout)
+
+  use sizes
+  implicit none
+  integer i, nbij, bije(maxatom,2), na, nb, numa(maxatom)
+  double precision ::prota(maxatom,3), protb(maxatom,3), dist
+  logical :: rmsf, rmsfplot
+  character(len=200) :: rmsfout, rmsfplotout
+
+  if ( rmsf ) then
+    open(10,file=rmsfout)
+    write(10,"('# RESIDUE_NUMBER      RMSF')")
+    do i = 1, nbij
+      dist = (prota(bije(i,1),1) - protb(bije(i,2),1))**2 &
+           + (prota(bije(i,1),2) - protb(bije(i,2),2))**2 &
+           + (prota(bije(i,1),3) - protb(bije(i,2),3))**2
+      dist = dsqrt(dist)
+      write(10,"(tr2,i8,tr5,f10.5)") numa(bije(i,1)), dist 
+    end do
+    close(10)
+    write(*,*) ' Wrote RMSF data file: ', trim(adjustl(rmsfout))
+  end if
+
+end subroutine writermsf
+
+!
 ! Subroutine getrmsd2: Computes the rmsd given the bijection,
 !                      only for atoms which are closer than
 !                      some tolerance deffined by the dtri parameter
@@ -1794,7 +1816,7 @@ double precision function dist(prota,i,j)
 end function dist
  
 !
-! Next, the subroutine for file input and output
+! Next, the subroutines for file input and output
 !
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1807,22 +1829,16 @@ end function dist
 ! Subroutine that reads the parameters from the command line
 ! 
 
-subroutine getpars(method,gap,maxit,dtri,gdt_threshold,&
-                   protea,proteb,chaina,chainb,iprint,&
-                   all,seqoff,seqfix,&
-                   pdblist,output,pdbout,useini,beta1,beta2,&
-                   ocup1,ocup2)
- 
-  use ioformat
+subroutine getpars()
+
   use sizes
+  use inputpars
+  use ioformat
   implicit none
 
-  integer :: method, maxit, iprint, narg, length, i, ival, iargc, ioerr
-  double precision :: gap, dval, dtri, gdt_threshold
-  character(len=1) :: chaina, chainb
-  character(len=200) :: protea, proteb, pdblist, keyword, value, pdbout
-  logical :: output, all, seqoff, useini, beta1, beta2, ocup1, ocup2
-  logical :: seqfix
+  integer :: narg, length, i, ival, iargc, ioerr
+  double precision :: dval
+  character(len=200) :: keyword, value
 
   ! Reading the command line specifications
 
@@ -1895,6 +1911,14 @@ subroutine getpars(method,gap,maxit,dtri,gdt_threshold,&
       call getarg(i+1,value)
       output = .true.
       pdbout = value(1:length(value))
+    else if(keyword(1:length(keyword)).eq.'-rmsf') then
+      call getarg(i+1,value)
+      rmsf = .true.
+      rmsfout = value(1:length(value))
+    else if(keyword(1:length(keyword)).eq.'-rmsfplot') then
+      call getarg(i+1,value)
+      rmsfplot = .true.
+      rmsfplotout = value(1:length(value))
     else if(keyword(1:length(keyword)).eq.'-all') then
       all = .true.
       i = i - 1
