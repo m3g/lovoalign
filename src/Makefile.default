@@ -15,6 +15,7 @@
 FORTRAN = AUTO
 #
 FLAGS = -O3 -ffast-math 
+#FLAGS = -Wall -fbounds-check
 #
 ###################################################################
 #                                                                 #
