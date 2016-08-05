@@ -30,6 +30,7 @@ subroutine help
   write(*,*) ' -g [real] Penalization for gaps '
   write(*,*) ' -dtri [real] Atoms farther than this will not be'
   write(*,*) '        considered. Distance for Triangular score.'
+  write(*,*) ' -rmsf [file] Print RMSF plot to file.'
   write(*,*)
   write(*,*) ' Other options and instructions can be found at  '
   write(*,*) ' the initial source code comments and at: '
