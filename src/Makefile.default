@@ -28,22 +28,60 @@ FLAGS = -O3 -ffast-math
 ifeq ($(FORTRAN),AUTO)
 FORTRAN = $(FC)
 endif 
-FILES = lovoalign.f90 title.f90 flashsort.f jacobi.f optim.f 
+MODULES = sizes.f90       \
+          inputpars.f90   \
+          ioformat.f90 
+FILES = lovoalign.f90     \
+        computegdt.f90    \
+        get_nearest.f90   \
+        getpars.f90       \
+        getrmsd2.f90      \
+        getrmsd.f90       \
+        help.f90          \
+        initial.f90       \
+        moveprot.f90      \
+        nonbscore.f90     \
+        orderpdb.f90      \
+        orprot.f90        \
+        printdata.f90     \
+        procrustes.f90    \
+        prodin.f90        \
+        protall.f90       \
+        pseudoprot.f90    \
+        readfile.f90      \
+        readlist.f90      \
+        structal.f90      \
+        title.f90         \
+        tmscore.f90       \
+        tocm.f90          \
+        triang.f90        \
+        writebije.f90     \
+        writepdb.f90      \
+        writermsf.f90     \
+        dist.f90          \
+        dval.f90          \
+        ic.f90            \
+        ival.f90          \
+        length.f90        \
+        letter.f90        \
+        jacobi.f          \
+        flashsort.f       \
+        optim.f 
 BIN=../bin
-lovoalign : $(FILES)
+lovoalign : $(MODULES) $(FILES)
 	@echo " ------------------------------------------------------ " 
 	@echo " Compiling LovoAlign with $(FORTRAN) " 
 	@echo " Flags: $(FLAGS) " 
 	@echo " ------------------------------------------------------ " 
-	@$(FORTRAN) $(FLAGS) $(FILES) -o $(BIN)/lovoalign
+	@$(FORTRAN) $(FLAGS) $(MODULES) $(FILES) -o $(BIN)/lovoalign
 	@echo " LovoAlign succesfully built." 
 	@echo " ------------------------------------------------------ " 
-devel: $(FILES)
+devel: $(MODULES) $(FILES)
 	@echo " ------------------------------------------------------ " 
 	@echo " Compiling LovoAlign with $(FORTRAN) " 
 	@echo " Flags: -Wall -fbounds-check" 
 	@echo " ------------------------------------------------------ " 
-	@$(FORTRAN) -Wall -fbounds-check $(FILES) -o $(BIN)/lovoalign
+	@$(FORTRAN) -Wall -fbounds-check $(MODULES) $(FILES) -o $(BIN)/lovoalign
 	@echo " LovoAlign succesfully built." 
 	@echo " ------------------------------------------------------ " 
 clean:
