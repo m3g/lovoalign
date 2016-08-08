@@ -13,31 +13,52 @@ subroutine writermsf(na,nb,prota,protb,bije,nbij,&
   logical :: rmsf, rmsftrend
   character(len=200) :: rmsfout, rmsftrendout
 
+  if ( .not. rmsf .and. .not. rmsftrend ) return
+
+  ! Open rmsf file and Write title 
   if ( rmsf ) then
+    open(10,file=rmsfout)
+    write(10,"('# RESIDUE_NUMBER             RMSF')")
+  end if
+  
+  ! Initialize trend list
+  if ( rmsftrend ) then
     do i = 1, 100
       trendlist(i) = 0
     end do
-    open(10,file=rmsfout)
-    write(10,"('# RESIDUE_NUMBER             RMSF')")
-    do i = 1, nbij
-      dist = (prota(bije(i,1),1) - protb(bije(i,2),1))**2 &
-           + (prota(bije(i,1),2) - protb(bije(i,2),2))**2 &
-           + (prota(bije(i,1),3) - protb(bije(i,2),3))**2
-      dist = dsqrt(dist)
+  end if
 
+  ! Compute displacements
+  do i = 1, nbij
+    dist = (prota(bije(i,1),1) - protb(bije(i,2),1))**2 &
+         + (prota(bije(i,1),2) - protb(bije(i,2),2))**2 &
+         + (prota(bije(i,1),3) - protb(bije(i,2),3))**2
+    dist = dsqrt(dist)
+
+    ! Add this displacement to trend list
+    if ( rmsftrend ) then
       j = 100
       do while( dble(j) / 2.d0 > dist )  
         trendlist(j) = trendlist(j) + 1
         j = j - 1
       end do
+    end if
+
+    ! Write this rmsf to file
+    if ( rmsf ) then 
       write(10,"(tr8,i8,tr5,f12.5)") numa(bije(i,1)), dist 
-    end do
+    end if
+  end do
+
+  ! Close rmsf file and report
+  if ( rmsf ) then
     close(10)
     write(*,dash_line)
     write(*,*) ' Wrote RMSF data file: ', trim(adjustl(rmsfout))
   end if
 
-  if ( rmsftrend ) then 
+  ! Write rmsf trend file
+  if ( rmsftrend ) then
     open(10,file=rmsftrendout)
     write(10,"('#            RMSF         FRACTION')")
     j = 1
