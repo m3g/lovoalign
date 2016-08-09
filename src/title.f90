@@ -10,7 +10,7 @@ subroutine title()
      &'                           PROGRAM: LOVOALIGN',/,&
      &'                   Low Order Value Optimization Methods',/,&
      &'                          for Protein Alignment',/,&
-     &'                              Version 16.222 ',/&
+     &'                              Version 16.222.2 ',/&
      &/,&
      &'  ',71('#'))")
 

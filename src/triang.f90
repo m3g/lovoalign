@@ -48,7 +48,6 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
         score = score + bijscore(nbij)
       end if
     end do
-write(*,"('|',i3,'-',i3,'|')") (bije(i,1),bije(i,2),i=1,nbij)
     ngaps = 0
     if ( nbij == 0 ) then
       nbij = na
