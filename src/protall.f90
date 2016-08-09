@@ -63,7 +63,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
     nef = 0 
     it = 0
-    prevscore = 0.d0
+    prevscore = -1.d0
  
     ! Compute the DP bijection and the score at initial point          
 
@@ -123,7 +123,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
     nef = 0 
     it = 0
-    prevscore = 0.d0
+    prevscore = -1.d0
  
     ! Compute the DP bijection and the score at initial point          
 
@@ -171,7 +171,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
     nef = 0 
     it = 0
-    prevscore = 0.d0
+    prevscore = -1.d0
  
     ! Compute the correspondence and the score at initial point          
 
@@ -224,7 +224,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
     nef = 0 
     it = 0
-    prevscore = 0.d0 
+    prevscore = -1.d0
  
     ! Compute the correspondence and the score at initial point          
 
@@ -268,7 +268,13 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
  
   ! Writting the final bijection obtained
 
-  if(iprint.eq.1 .and. .not. seqoff) call writebije(na,nb,resa,resb,numa,numb,bije,nbij)
+  if(iprint.eq.1 .and. .not. seqoff) then
+    if ( method /= 4 ) then
+      call writebije(na,nb,resa,resb,numa,numb,bije,nbij)
+    else
+      call writenonbije(bije,nbij)
+    end if
+  end if
         
   ! Computing the RMSD of aligned residues at the solution
 

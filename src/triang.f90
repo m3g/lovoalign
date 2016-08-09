@@ -35,16 +35,29 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
   
   if ( seqfix ) then
     score = 0.d0
+    nbij = 0
     do i = 1, na
       dist = (prota(i,1) - protb(i,1))**2 &
            + (prota(i,2) - protb(i,2))**2 &
            + (prota(i,3) - protb(i,3))**2
-      score = score + dmax1(0.d0, 1.d0 - dist / dtri2)
-      bije(i,1) = i
-      bije(i,2) = i
+      if ( dist < dtri2 ) then 
+        nbij = nbij + 1
+        bije(nbij,1) = i 
+        bije(nbij,2) = i 
+        bijscore(nbij) = 1.d0 - dist / dtri2
+        score = score + bijscore(nbij)
+      end if
     end do
-    nbij = na
+write(*,"('|',i3,'-',i3,'|')") (bije(i,1),bije(i,2),i=1,nbij)
     ngaps = 0
+    if ( nbij == 0 ) then
+      nbij = na
+      do i = 1, na
+        bije(i,1) = i
+        bije(i,2) = i
+        bijscore(i) = 0.d0
+      end do
+    end if
     return
   end if
 
@@ -63,7 +76,7 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
 
   ! Test if the number of atoms in the bijection is greater than zero
 
-  if(npos.eq.0) then
+  if( npos == 0 ) then
     nbij_temp = 1
     bije_temp(1,1) = 1
     bije_temp(1,2) = 1

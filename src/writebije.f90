@@ -38,6 +38,18 @@ subroutine writebije(na,nb,resa,resb,numa,numb,bije,nbij)
         line1(ic:ic) = '-'
         line2(ic:ic) = resb(ib)
         ib = ib + 1
+      else if(ia.gt.bije(nbij,1) .and. ib.gt.bije(nbij,2)) then
+        if(ia.le.na) then
+          line1(ic:ic) = resa(ia)
+          line2(ic:ic) = '-'
+          ia = ia + 1
+        else
+          if (ib.le.nb) then
+            line1(ic:ic) = '-'
+            line2(ic:ic) = resb(ib)
+          end if
+          ib = ib + 1
+        end if
       else
         if(ia.le.na) line1(ic:ic) = resa(ia)
         if(ib.le.nb) line2(ic:ic) = resb(ib)

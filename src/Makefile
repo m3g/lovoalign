@@ -16,7 +16,6 @@
 FORTRAN = /usr/bin/gfortran
 #
 FLAGS = -O3 -ffast-math 
-#FLAGS = -Wall -fbounds-check
 #
 ###################################################################
 #                                                                 #
@@ -57,6 +56,7 @@ FILES = lovoalign.f90     \
         tocm.f90          \
         triang.f90        \
         writebije.f90     \
+        writenonbije.f90     \
         writepdb.f90      \
         writermsf.f90     \
         dist.f90          \
@@ -66,7 +66,7 @@ FILES = lovoalign.f90     \
         length.f90        \
         letter.f90        \
         jacobi.f          \
-        flashsort.f       \
+        flashsort.f90     \
         optim.f 
 BIN=../bin
 lovoalign : $(MODULES) $(FILES)
