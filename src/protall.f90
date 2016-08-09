@@ -17,21 +17,22 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
                       score, dzero2, tol, scale,&
                       prevscore, rmsd, rmsd2, dtri2,&
                       disord(maxatom-1,maxatom), &
-                      gdt_tm, gdt_ha
+                      gdt_tm, gdt_ha, scorebest
   real :: etime, tarray(2), time1
-  integer :: na, nb,&
-             bije(maxatom,2),&
-             ngaps, nbij, nef, nbij_dtri,&
+  integer :: na, nb, i,&
+             bije(maxatom,2), bijebest(maxatom,2),&
+             ngaps, nbij, nbijbest, nef, nbij_dtri,&
              length, ic, numa(maxatom),&
-             numb(maxatom), it,&
+             numb(maxatom), it, iglobal, itrial, &
              indisord(maxatom-1,maxatom), pair(maxatom)
   character(len=1) :: resa(maxatom), resb(maxatom)
-  character(len=200) :: title_format, data_format 
+  character(len=200) :: title_format, data_format, trial_format
   external :: structal, tmscore
 
   title_format = "(t3,'ITER',t20,'SCORE',t30,'GRADIENT NORM',&
                   &t45,'COVERAGE',t56,'GAPS',t64,'NEF')"
   data_format = "(i6,tr1,e17.10,tr1,e17.10,tr4,i6,tr1,i6,tr1,i6)"
+  trial_format = "(t3,'TRIAL: ',i7,' SCORE: ',f12.5,' COVERAGE: ',i6,' GAPS: ',i6,' GLOB:',i2)"
 
   ! Time used in this alignment is computed from here
 
@@ -39,7 +40,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
   ! This is the relative precision for score convergence
 
-  tol = 1.d-6
+  tol = 1.d-2
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !                                                                !
@@ -49,45 +50,71 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
        
   if(method.eq.1) then
 
-    ! Writes the titles for regular iteration printing
-
-    if(iprint.eq.1) write(*,title_format)
-
     ! Normalization of STRUCTAL score
   
     dzero = 2.24d0
     dzero2 = dzero*dzero
     scale = 20.d0
+
+    scorebest = -1.d0
+    iglobal = 0
+    itrial = 0
+    do while( iglobal < nglobal ) 
+      itrial = itrial + 1
+
+      ! Create random initial point of itrial > 1 
+
+      if ( itrial > 1 ) call randomini(na,nb,prota,protb,nbij,bije)
  
-    ! Number iterations, functional evaluations and DP calls
+      ! Writes the titles for regular iteration printing
 
-    nef = 0 
-    it = 0
-    prevscore = -1.d0
- 
-    ! Compute the DP bijection and the score at initial point          
+      if(iprint.eq.2) write(*,title_format)
 
-    call structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                  bijscore,ngaps,score,seqfix)
+      ! Number iterations, functional evaluations and DP calls
 
-    nef = nef + 1
-    if(iprint.eq.1) write(*,data_format) it, score, 0.d0, nbij, ngaps,nef
-          
-    ! Here begin the iteration loop
+      nef = 0 
+      it = 0
+      prevscore = -1.d0
 
-    do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
+      ! Compute the DP bijection and the score at initial point          
 
-      it = it + 1
-      prevscore = score
+      call structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
+                    bijscore,ngaps,score,seqfix)
 
-      ! Perform a newton step to maximize the score given the bijection
+      nef = nef + 1
+      if(iprint.eq.2) write(*,data_format) it, score, 0.d0, nbij, ngaps,nef
+            
+      ! Here begin the iteration loop
 
-      call newton(structal,na,nb,prota,protb,score,bije,bijscore,&
-                  dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
+      do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
 
-      ! Output regular iteration data
-          
-      if(iprint.eq.1) write(*,data_format) it, score, gnor, nbij, ngaps,nef
+        it = it + 1
+        prevscore = score
+
+        ! Perform a newton step to maximize the score given the bijection
+
+        call newton(structal,na,nb,prota,protb,score,bije,bijscore,&
+                    dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
+
+        ! Output regular iteration data
+            
+        if(iprint.eq.2) write(*,data_format) it, score, gnor, nbij, ngaps,nef
+
+      end do
+      if ( abs(score-scorebest) < tol*score ) then
+        iglobal = iglobal + 1
+      end if
+      if ( score > scorebest ) then
+        iglobal = 1
+        nbijbest = nbij
+        scorebest = score
+        do i = 1, nbij
+          bijebest(i,1) = bije(i,1)
+          bijebest(i,2) = bije(i,2)
+        end do
+        if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      end if
+      if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
 
     end do
   end if
@@ -109,44 +136,70 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       stop
     end if
 
-    ! Writes the titles for regular iteration printing
-
-    if(iprint.eq.1) write(*,title_format)
-
     ! Normalization of the TM-SCORE score
 
     dzero = 1.24d0 * (nb-15.d0)**(1.d0/3.d0) - 1.8d0
     dzero2 = dzero*dzero
     scale = 1.d0 / dfloat(nb)
 
-    ! Number iterations, functional evaluations and DP calls
+    scorebest = -1.d0
+    iglobal = 0
+    itrial = 0
+    do while( iglobal < nglobal ) 
+      itrial = itrial + 1
 
-    nef = 0 
-    it = 0
-    prevscore = -1.d0
+      ! Writes the titles for regular iteration printing
+
+      if(iprint.eq.2) write(*,title_format)
+
+      ! Create random initial point of itrial > 1 
+
+      if ( itrial > 1 ) call randomini(na,nb,prota,protb,nbij,bije)
+
+      ! Number iterations, functional evaluations and DP calls
+
+      nef = 0 
+      it = 0
+      prevscore = -1.d0
  
-    ! Compute the DP bijection and the score at initial point          
+      ! Compute the DP bijection and the score at initial point          
 
-    call tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                 bijscore,ngaps,score,seqfix)
-    nef = nef + 1
-    if(iprint.eq.1) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
-          
-    ! Here begin the iteration loop
+      call tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
+                   bijscore,ngaps,score,seqfix)
+      nef = nef + 1
+      if(iprint.eq.2) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
+            
+      ! Here begin the iteration loop
 
-    do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
+      do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
 
-      it = it + 1
-      prevscore = score
+        it = it + 1
+        prevscore = score
 
-      ! Perform a newton step to maximize the score given the bijection
+        ! Perform a newton step to maximize the score given the bijection
 
-      call newton(tmscore,na,nb,prota,protb,score,bije,bijscore,&
-                  dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
+        call newton(tmscore,na,nb,prota,protb,score,bije,bijscore,&
+                    dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
 
-      ! Output regular iteration data
-          
-      if(iprint.eq.1) write(*,data_format) it, score, gnor, nbij, ngaps, nef
+        ! Output regular iteration data
+            
+        if(iprint.eq.2) write(*,data_format) it, score, gnor, nbij, ngaps, nef
+
+      end do
+      if ( abs(score-scorebest) < tol*score ) then
+        iglobal = iglobal + 1
+      end if
+      if ( score > scorebest ) then
+        iglobal = 1
+        nbijbest = nbij
+        scorebest = score
+        do i = 1, nbij
+          bijebest(i,1) = bije(i,1)
+          bijebest(i,2) = bije(i,2)
+        end do
+        if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      end if
+      if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
 
     end do
   end if
@@ -163,45 +216,70 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
   
     dtri2 = dtri*dtri
  
-    ! Writes the titles for regular iteration printing
+    scorebest = -1.d0
+    iglobal = 0
+    itrial = 0
+    do while( iglobal < nglobal ) 
+      itrial = itrial + 1
 
-    if(iprint.eq.1) write(*,title_format)
+      ! Writes the titles for regular iteration printing
 
-    ! Number iterations, functional evaluations and DP calls
+      if(iprint.eq.2) write(*,title_format)
 
-    nef = 0 
-    it = 0
-    prevscore = -1.d0
+      ! Create random initial point of itrial > 1 
+
+      if ( itrial > 1 ) call randomini(na,nb,prota,protb,nbij,bije)
+
+      ! Number iterations, functional evaluations and DP calls
+
+      nef = 0 
+      it = 0
+      prevscore = -1.d0
  
-    ! Compute the correspondence and the score at initial point          
+      ! Compute the correspondence and the score at initial point          
 
-    call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
-                bijscore,ngaps,score,seqfix)
-    nef = nef + 1
-    if(iprint.eq.1) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
-          
-    ! Here begin the iteration loop
+      call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
+                  bijscore,ngaps,score,seqfix)
+      nef = nef + 1
+      if(iprint.eq.2) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
+            
+      ! Here begin the iteration loop
 
-    do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
+      do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
 
-      it = it + 1
-      prevscore = score
+        it = it + 1
+        prevscore = score
  
-      ! Given the correspondence, perform a Procrustes RMSD alignment
+        ! Given the correspondence, perform a Procrustes RMSD alignment
 
-      call procrustes(nbij,na,bije,prota,protb)
+        call procrustes(nbij,na,bije,prota,protb)
 
-      ! Compute the DP bijection and the score at the new orientation
+        ! Compute the DP bijection and the score at the new orientation
 
-      call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,bijscore,ngaps,&
-                  score,seqfix)
+        call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,bijscore,ngaps,&
+                    score,seqfix)
 
-      ! Output regular iteration data
-          
-      if(iprint.eq.1) write(*,data_format) it, score, score-prevscore, nbij, ngaps, nef
+        ! Output regular iteration data
+            
+        if(iprint.eq.2) write(*,data_format) it, score, score-prevscore, nbij, ngaps, nef
+
+      end do
+      if ( abs(score-scorebest) < tol*score ) then
+        iglobal = iglobal + 1
+      end if
+      if ( score > scorebest ) then
+        iglobal = 1
+        nbijbest = nbij
+        scorebest = score
+        do i = 1, nbij
+          bijebest(i,1) = bije(i,1)
+          bijebest(i,2) = bije(i,2)
+        end do
+        if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      end if
+      if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
 
     end do
-
   end if
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -215,47 +293,72 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
     ! Square of the minimum distance
   
     dtri2 = dtri*dtri
+
+    scorebest = -1.d0
+    iglobal = 0
+    itrial = 0
+    do while( iglobal < nglobal ) 
+      itrial = itrial + 1
+
+      ! Writes the titles for regular iteration printing
+
+      if(iprint.eq.2) write(*,title_format)
+
+      ! Create random initial point of itrial > 1 
+
+      if ( itrial > 1 ) call randomini(na,nb,prota,protb,nbij,bije)
+
+      ! Number iterations and functional evaluations
+
+      nef = 0 
+      it = 0
+      prevscore = -1.d0
  
-    ! Writes the titles for regular iteration printing
-
-    if(iprint.eq.1) write(*,title_format)
-
-    ! Number iterations and functional evaluations
-
-    nef = 0 
-    it = 0
-    prevscore = -1.d0
- 
-    ! Compute the correspondence and the score at initial point          
-
-    call nonbscore(na, nb, prota, protb, dtri2, gap,&
-                   disord, indisord, it, pair,&
-                   score, bije, nbij, ngaps)
-    nef = nef + 1
-    if(iprint.eq.1) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
-          
-    ! Here begin the iteration loop
-
-    do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
-
-      it = it + 1
-      prevscore = score
- 
-      ! Given the correspondence, perform a Procrustes RMSD alignment
-
-      call procrustes(nbij,na,bije,prota,protb)
-
-      ! Compute non-bijective correspondence and the score at the new orientation
+      ! Compute the correspondence and the score at initial point          
 
       call nonbscore(na, nb, prota, protb, dtri2, gap,&
-                     disord, indisord, it, pair,& 
+                     disord, indisord, it, pair,&
                      score, bije, nbij, ngaps)
       nef = nef + 1
+      if(iprint.eq.2) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
+            
+      ! Here begin the iteration loop
 
-      ! Output regular iteration data
-          
-      if(iprint.eq.1) write(*,data_format) it, score, score-prevscore, nbij, ngaps, nef
+      do while(it.le.maxit.and.(score-prevscore).gt.abs(tol*score))
 
+        it = it + 1
+        prevscore = score
+ 
+        ! Given the correspondence, perform a Procrustes RMSD alignment
+
+        call procrustes(nbij,na,bije,prota,protb)
+
+        ! Compute non-bijective correspondence and the score at the new orientation
+
+        call nonbscore(na, nb, prota, protb, dtri2, gap,&
+                       disord, indisord, it, pair,& 
+                       score, bije, nbij, ngaps)
+        nef = nef + 1
+
+        ! Output regular iteration data
+            
+        if(iprint.eq.2) write(*,data_format) it, score, score-prevscore, nbij, ngaps, nef
+
+      end do
+      if ( abs(score-scorebest) < tol*score ) then
+        iglobal = iglobal + 1
+      end if
+      if ( score > scorebest ) then
+        iglobal = 1
+        nbijbest = nbij
+        scorebest = score
+        do i = 1, nbij
+          bijebest(i,1) = bije(i,1)
+          bijebest(i,2) = bije(i,2)
+        end do
+        if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      end if
+      if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
     end do
 
   end if
@@ -270,20 +373,20 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
   if(iprint.eq.1 .and. .not. seqoff) then
     if ( method /= 4 ) then
-      call writebije(na,nb,resa,resb,numa,numb,bije,nbij)
+      call writebije(na,nb,resa,resb,numa,numb,bijebest,nbijbest)
     else
-      call writenonbije(bije,nbij)
+      call writenonbije(bijebest,nbijbest)
     end if
   end if
         
   ! Computing the RMSD of aligned residues at the solution
 
-  call getrmsd(prota,protb,bije,nbij,rmsd)
+  call getrmsd(prota,protb,bijebest,nbijbest,rmsd)
 
   ! Computing the GDT scores at the solution
 
-  call computegdt(na,nb,prota,protb,bije,nbij,gdt_threshold,gdt_tm,gdt_ha)
-  call writermsf(na,nb,prota,protb,bije,nbij,&
+  call computegdt(na,nb,prota,protb,bijebest,nbijbest,gdt_threshold,gdt_tm,gdt_ha)
+  call writermsf(na,nb,prota,protb,bijebest,nbijbest,&
                  numa,rmsf,rmsfout,rmsftrend,rmsftrendout)
  
   ! Printing the final score
@@ -291,12 +394,12 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
   if(iprint.eq.1) then
     write(*,dash_line)
     write(*,"(a14,tr1,f12.6,tr1,a10,tr1,i5,tr1,a6,tr1,f10.6,tr1,a6,i4)")&
-            '  FINAL SCORE:', score,' COVERAGE:', nbij,' RMSD:', rmsd,' GAPS:', ngaps
+            '  FINAL SCORE:', scorebest,' COVERAGE:', nbijbest,' RMSD:', rmsd,' GAPS:', ngaps
   endif
  
   ! Compute rmsd for atoms which are closer than some tolerance
 
-  call getrmsd2(prota,protb,bije,nbij,rmsd2,nbij_dtri,dtri)
+  call getrmsd2(prota,protb,bijebest,nbijbest,rmsd2,nbij_dtri,dtri)
  
   ! Printing the final score
 
@@ -321,12 +424,12 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       write(*,"(t1,a,t12,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
               protea(ic(protea):length(protea)),&
               proteb(ic(proteb):length(proteb)),&
-              score, nbij, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
+              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
     else
       write(*,"(t1,a,tr1,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
               protea(ic(protea):length(protea)),&
               proteb(ic(proteb):length(proteb)),&
-              score, nbij, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
+              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
     end if
   end if
  

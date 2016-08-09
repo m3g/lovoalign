@@ -25,10 +25,10 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
   use sizes
   implicit none
   integer :: na, nb, i, j, nbij, ngaps, bije(maxatom,2), npos,&
-            nbij_temp, bije_temp(maxatom,2)
+            nbij_temp, bije_temp(maxatom,2), minpair
   double precision :: prota(maxatom,3), protb(maxatom,3), dtri2,&
                       dist, score, scorin(maxatom,maxatom), gap,&
-                      bijscore(maxatom)
+                      bijscore(maxatom), dmin
   logical :: seqfix
 
   ! If using a fixed bijection, just compute score and return
@@ -36,10 +36,15 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
   if ( seqfix ) then
     score = 0.d0
     nbij = 0
+    dmin = 1.d30
     do i = 1, na
       dist = (prota(i,1) - protb(i,1))**2 &
            + (prota(i,2) - protb(i,2))**2 &
            + (prota(i,3) - protb(i,3))**2
+      if ( dist < dmin ) then
+        dmin = dist
+        minpair = i
+      end if
       if ( dist < dtri2 ) then 
         nbij = nbij + 1
         bije(nbij,1) = i 
@@ -49,12 +54,18 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
       end if
     end do
     ngaps = 0
-    if ( nbij == 0 ) then
-      nbij = na
-      do i = 1, na
-        bije(i,1) = i
-        bije(i,2) = i
+    if ( nbij < 4 ) then
+      nbij = 4
+      do i = 1, 4
+        bije(i,1) = minpair + i - 1
+        bije(i,2) = minpair + i - 1
         bijscore(i) = 0.d0
+      end do
+    else 
+      do i = 2, nbij
+        if ( bije(i,1) > bije(i-1,1) + 1 ) then
+          ngaps = ngaps + 1
+        end if
       end do
     end if
     return

@@ -64,6 +64,8 @@
 !    -rmsf [filename]      Write rmsf profile to file.
 !    -rmsftrend [filename] Write rmsf profile trend to file (fraction of pairs
 !                          with rmsf smaller than threshold)
+!    -nglobal              Number of times the best point must be found to be
+!                          accepted to be the global minimizer (default=3)
 !
 
 program lovoalign
@@ -137,6 +139,7 @@ program lovoalign
   useini = .true.
   dtri = 3.d0
   gdt_threshold = 4.d0
+  nglobal = 3
  
   ! Default method
 
@@ -189,7 +192,7 @@ program lovoalign
 
     ! Printing all data from this run:
       
-    if(iprint.eq.1) call printdata(protea,proteb,na,nb,chaina,&
+    if(iprint.ge.1) call printdata(protea,proteb,na,nb,chaina,&
                                    chainb,method,gap,maxit,dtri,gdt_threshold,&
                                    useini)
 
@@ -221,7 +224,7 @@ program lovoalign
     if(output) then
       call writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
                     na,resa,numa,proteb,all)
-      if(iprint.eq.1) then
+      if(iprint.ge.1) then
         write(*,*) ' Wrote file: ', pdbout(ic(pdbout):length(pdbout))
         write(*,dash_line)
       end if
@@ -273,7 +276,7 @@ program lovoalign
  
         ! If specificaly required, print data for this problem
       
-        if(iprint.eq.1) call printdata(protea,proteb,na,nb,chaina,&
+        if(iprint.ge.1) call printdata(protea,proteb,na,nb,chaina,&
                                        chainb,method,gap,maxit,dtri,gdt_threshold,&
                                        useini)
 
@@ -353,7 +356,7 @@ program lovoalign
 
             ! If specificaly required, print data for this problem
       
-            if(iprint.eq.1) call printdata(protea,proteb,na,nb,chaina,&
+            if(iprint.ge.1) call printdata(protea,proteb,na,nb,chaina,&
                                            chainb,method,gap,maxit,dtri,gdt_threshold,&
                                            useini)
  
@@ -382,7 +385,7 @@ program lovoalign
   ! Compute total running time
 
   time0 = etime(tarray) - time0
-  if(iprint.eq.1) then
+  if(iprint.ge.1) then
     write(*,*) ' TOTAL RUNNING TIME: ', time0
     write(*,dash_line)
   else

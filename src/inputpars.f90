@@ -2,7 +2,7 @@
 
 module inputpars
 
-  integer :: method, maxit, iprint 
+  integer :: method, maxit, iprint, nglobal
   double precision :: gap, dtri, gdt_threshold 
   character(len=1) :: chaina, chainb
   character(len=200) :: protea, proteb, pdblist, pdbout
