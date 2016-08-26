@@ -10,6 +10,7 @@ module inputpars
   logical :: all, seqoff, seqfix
   logical :: beta1, beta2, ocup1, ocup2
   logical :: rmsf, rmsftrend
+  logical :: skip
   character(len=200) :: rmsfout, rmsftrendout
 
 end module inputpars

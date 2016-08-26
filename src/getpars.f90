@@ -18,6 +18,7 @@ subroutine getpars()
   narg = iargc() 
   i = 1
   gap = 1.d30
+  skip = .false.
   do while(i.le.narg)
     call getarg(i,keyword)
     if(keyword(1:length(keyword)).eq.'-p1') then
@@ -55,6 +56,9 @@ subroutine getpars()
     else if(keyword(1:length(keyword)).eq.'-pdblist') then
       call getarg(i+1,value)
       pdblist = value
+    else if(keyword(1:length(keyword)).eq.'-skip') then
+      skip = .true.
+      i = i - 1
     else if(keyword(1:length(keyword)).eq.'-m') then
       call getarg(i+1,value)
       method = ival(value)

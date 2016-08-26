@@ -84,7 +84,7 @@ program lovoalign
   real :: etime, tarray(2), time0 
   logical :: error
   character(len=1) :: resa(maxatom), resb(maxatom)
-  character(len=200) :: record, pdbfiles(maxfiles)
+  character(len=200) :: record, pdbfiles(maxfiles), file1, file2
   character(len=1000) :: header_list
 
   ! Computing running time
@@ -264,11 +264,25 @@ program lovoalign
 
     ! Start alignments
 
+    file1 = proteb(ic(proteb):length(proteb))
     do i = 1, nfiles 
 
       ! Read file for protein A
 
       protea = pdbfiles(i)
+
+      ! Skip this alignment if skip was set and the file was
+      ! not reached, if reached, will compute from the next one
+
+      if ( skip ) then
+        file2 = pdbfiles(i)
+        file2 = file2(ic(file2):length(file2))
+        if ( file2 == file1 ) then
+          skip = .false. 
+        end if
+        cycle
+      end if
+
       call readfile(protea,prota,chaina,beta2,ocup2,&
                     na,resa,numa,all,error)
 

@@ -3,6 +3,6 @@
 module sizes
 
   integer, parameter :: maxatom = 4500
-  integer, parameter :: maxfiles = 3000
+  integer, parameter :: maxfiles = 13000
 
 end module sizes
