@@ -17,7 +17,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
                       score, dzero2, tol, scale,&
                       prevscore, rmsd, rmsd2, dtri2,&
                       disord(maxatom-1,maxatom), &
-                      gdt_tm, gdt_ha, scorebest
+                      gdt_ts, gdt_ha, scorebest
   real :: etime, tarray(2), time1
   integer :: na, nb, i,&
              bije(maxatom,2), bijebest(maxatom,2),&
@@ -385,7 +385,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
   ! Computing the GDT scores at the solution
 
-  call computegdt(na,nb,prota,protb,bijebest,nbijbest,gdt_threshold,gdt_tm,gdt_ha)
+  call computegdt(na,nb,prota,protb,bijebest,nbijbest,gdt_threshold,gdt_ts,gdt_ha)
   call writermsf(na,nb,prota,protb,bijebest,nbijbest,&
                  numa,rmsf,rmsfout,rmsftrend,rmsftrendout)
  
@@ -408,7 +408,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
     write(*,"(a,f8.4,a,f10.6,a,i6)")&
           '  ATOMS CLOSER THAN ',dtri,' Ang: RMSD: ',rmsd2,' COVERAGE: ', nbij_dtri
     write(*,"(a,f8.3,t34,a,f8.3)")&
-          '  GDT_TM SCORE: ', gdt_tm, ' GDT_HA SCORE: ', gdt_ha
+          '  GDT_TS SCORE: ', gdt_ts, ' GDT_HA SCORE: ', gdt_ha
 
   endif
 
@@ -424,12 +424,12 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       write(*,"(t1,a,t12,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
               protea(ic(protea):length(protea)),&
               proteb(ic(proteb):length(proteb)),&
-              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
+              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_ts, gdt_ha, time1
     else
       write(*,"(t1,a,tr1,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
               protea(ic(protea):length(protea)),&
               proteb(ic(proteb):length(proteb)),&
-              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_tm, gdt_ha, time1
+              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_ts, gdt_ha, time1
     end if
   end if
  

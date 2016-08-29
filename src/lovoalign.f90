@@ -158,12 +158,12 @@ program lovoalign
            &'# RMSD: Root mean square deviation of COV atoms.',/,&
            &'# COV2: Number of atoms closer than ',f8.3,' Angstroms.',/,&
            &'# RMSD2: Root mean square deviation of COV2 atoms.',/,&
-           &'# GDT_TM: Global Distance Test (GDT) score.',/,&
+           &'# GDT_TS: Global Distance Test (GDT) total score.',/,&
            &'# GDT_HA: High-accuracy GDT score.',/,&
            &'# TIME: Time used in this alignment.',/,&
            &111('#'),/,&
            &'# Prot A',t16,'Prot B',t35,'SCORE',t46,'COV',t58,'RMSD',&
-           &t64,'COV2',t76,'RMSD2',t84,'GDT_TM',t93,'GDT_HA',t108,'TIME')"
+           &t64,'COV2',t76,'RMSD2',t84,'GDT_TS',t93,'GDT_HA',t108,'TIME')"
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !                                                    !
