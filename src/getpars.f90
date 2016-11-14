@@ -53,6 +53,34 @@ subroutine getpars()
     else if(keyword(1:length(keyword)).eq.'-ocup2') then
       ocup2 = .true.
       i = i - 1
+    else if(keyword(1:length(keyword)).eq.'-rmin1') then
+      call getarg(i+1,value)
+      read(value,*,iostat=ioerr) rmin1
+      if ( ioerr /= 0 ) then
+        write(*,*) ' ERROR: Could not read rmin1 from command line. '
+        stop
+      end if
+    else if(keyword(1:length(keyword)).eq.'-rmax1') then
+      call getarg(i+1,value)
+      read(value,*,iostat=ioerr) rmax1
+      if ( ioerr /= 0 ) then
+        write(*,*) ' ERROR: Could not read rmax1 from command line. '
+        stop
+      end if
+    else if(keyword(1:length(keyword)).eq.'-rmin2') then
+      call getarg(i+1,value)
+      read(value,*,iostat=ioerr) rmin2
+      if ( ioerr /= 0 ) then
+        write(*,*) ' ERROR: Could not read rmin2 from command line. '
+        stop
+      end if
+    else if(keyword(1:length(keyword)).eq.'-rmax2') then
+      call getarg(i+1,value)
+      read(value,*,iostat=ioerr) rmax2
+      if ( ioerr /= 0 ) then
+        write(*,*) ' ERROR: Could not read rmax2 from command line. '
+        stop
+      end if
     else if(keyword(1:length(keyword)).eq.'-pdblist') then
       call getarg(i+1,value)
       pdblist = value

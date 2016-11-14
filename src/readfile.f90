@@ -3,11 +3,12 @@
 ! simple clean coordinates file used for tests or other purposes
 !
 
-subroutine readfile(protea,prota,chaina,beta1,ocup1,na,resa,numa,all,error)
+subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all,error)
 
   use sizes
   implicit none
   integer :: na, length, ic, numa(maxatom),ioerr
+  integer :: rmin1, rmax1, resnum
   real :: beta, occupancy
   double precision :: prota(maxatom,3)
   logical :: all, error, beta1, ocup1
@@ -71,6 +72,11 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,na,resa,numa,all,error)
           return
         end if
 
+        read(record(23:26),*,iostat=ioerr) resnum 
+        if ( ioerr == 0 ) then
+          if ( resnum < rmin1 .or. resnum > rmax1 ) cycle
+        end if
+
         if( ( .not.ocup1 .and. .not.beta1 ) .or.&
             ( ocup1 .and. occupancy.gt.0. ) .or.&
             ( beta1 .and. beta.gt.0. ) ) then 
@@ -101,7 +107,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,na,resa,numa,all,error)
 
           ! Reading the residue number
 
-          numa(na) = na
+          numa(na) = resnum
           read(record(23:26),*,iostat=ioerr) numa(na)
           if ( ioerr /= 0 ) numa(na) = na
 
@@ -133,6 +139,11 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,na,resa,numa,all,error)
           write(*,*) '        However, the Beta option was set. '
           error = .true.
           return
+        end if
+
+        read(record(23:26),*,iostat=ioerr) resnum 
+        if ( ioerr == 0 ) then
+          if ( resnum < rmin1 .or. resnum > rmax1 ) cycle
         end if
 
         if( ( .not.ocup1 .and. .not.beta1 ) .or.&

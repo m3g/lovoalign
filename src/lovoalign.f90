@@ -45,6 +45,10 @@
 !    -beta2                Consider atoms with beta > 0 on second protein
 !    -ocup1                Consider atoms with occupancy > 0 on first protein
 !    -ocup2                Consider atoms with occupancy > 0 on second protein
+!    -rmin1 [integer]      Consider only residues of first protein with number greater than rmin1
+!    -rmax1 [integer]      Consider only residues of first protein with number smaller than rmax1
+!    -rmin2 [integer]      Consider only residues of second protein with number greater than rmin1
+!    -rmax2 [integer]      Consider only residues of second protein with number smaller than rmax1
 !    -m 1                  Maximize STRUCTAL score
 !    -m 2                  Maximize TM-SCORE
 !    -m 3                  Optimize TRIANGULAR score
@@ -133,6 +137,10 @@ program lovoalign
   beta2 = .false.
   ocup1 = .false.
   ocup2 = .false.
+  rmin1 = 0
+  rmax1 = 1000000
+  rmin2 = 0
+  rmax2 = 1000000
   all = .false.
   seqoff = .false.
   seqfix = .false.
@@ -185,9 +193,9 @@ program lovoalign
     ! Read protein coordinates
 
     call readfile(protea,prota,chaina,beta1,ocup1,&
-                  na,resa,numa,all,error)
+                  rmin1,rmax1,na,resa,numa,all,error)
     call readfile(proteb,protb,chainb,beta2,ocup2,&
-                  nb,resb,numb,all,error)
+                  rmin2,rmax2,nb,resb,numb,all,error)
     if(error) stop
 
     ! Printing all data from this run:
@@ -223,7 +231,7 @@ program lovoalign
 
     if(output) then
       call writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
-                    na,resa,numa,proteb,all)
+                    rmin1,rmax1,na,resa,numa,proteb,all)
       if(iprint.ge.1) then
         write(*,*) ' Wrote file: ', pdbout(ic(pdbout):length(pdbout))
         write(*,dash_line)
@@ -246,7 +254,7 @@ program lovoalign
     ! Read file of protein B (the specified protein will be allways B)
 
     call readfile(protea,protb,chainb,beta1,ocup1,&
-                  nb,resb,numb,all,error)
+                  rmin1,rmax1,nb,resb,numb,all,error)
     proteb = protea
     if(error) stop
 
@@ -344,7 +352,7 @@ program lovoalign
 
       proteb = pdbfiles(i)
       call readfile(proteb,protb,chainb,beta1,ocup1,&
-                    nb,resb,numb,all,error)
+                    rmin1,rmax1,nb,resb,numb,all,error)
 
       if(.not.error) then
 

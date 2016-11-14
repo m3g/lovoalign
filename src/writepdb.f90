@@ -6,12 +6,13 @@
 !
 
 subroutine writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
-                    na,resa,numa,proteb,all)
+                    rmin1,rmax1,na,resa,numa,proteb,all)
 
   use sizes
   implicit none
       
   integer :: i, j, na, nca, iq, length, ic, numa(maxatom), ioerr
+  integer :: rmin1, rmax1
   double precision :: prota(maxatom,3), aux(maxatom,3), cmo(3),&
                       cma(3), xm(maxatom), ym(maxatom), zm(maxatom),&
                       xp(maxatom), yp(maxatom), zp(maxatom), q(4,4),&
@@ -22,7 +23,7 @@ subroutine writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
 
   ! Reading the original CA coordinates
 
-  call readfile(protea,aux,chaina,beta1,ocup1,nca,resa,numa,all,error)
+  call readfile(protea,aux,chaina,beta1,ocup1,rmin1,rmax1,nca,resa,numa,all,error)
   if(nca.ne.na) then
     write(*,*) ' ERROR reading the file of the first'
     write(*,*) ' protein when going to write the output file.'
