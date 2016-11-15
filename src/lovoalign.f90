@@ -292,7 +292,7 @@ program lovoalign
       end if
 
       call readfile(protea,prota,chaina,beta2,ocup2,&
-                    na,resa,numa,all,error)
+                    rmin2,rmax2,na,resa,numa,all,error)
 
       if(.not.error) then
  
@@ -372,7 +372,7 @@ program lovoalign
 
           protea = pdbfiles(j)
           call readfile(protea,prota,chaina,beta2,ocup2,&
-                        na,resa,numa,all,error)
+                        rmin2,rmax2,na,resa,numa,all,error)
 
           if(.not.error) then
 
