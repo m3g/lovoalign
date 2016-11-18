@@ -77,6 +77,7 @@ program lovoalign
   use sizes
   use inputpars
   use ioformat
+  use initrandom
   implicit none
   integer :: i, j, narg, mode, &
              na, nb, length, ic, iargc, &
@@ -147,13 +148,19 @@ program lovoalign
   dtri = 3.d0
   gdt_threshold = 4.d0
   nglobal = 3
+  maxtrial = 1000
  
   ! Default method
 
   method = 2
 
   ! Set simple formats for output
+
   call simpleformats()
+
+  ! Initialize random number generator
+  seed = 1234567
+  call init_random_number(seed)
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !                                                    !

@@ -17,7 +17,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
                       score, dzero2, tol, scale,&
                       prevscore, rmsd, rmsd2, dtri2,&
                       disord(maxatom-1,maxatom), &
-                      gdt_ts, gdt_ha, scorebest
+                      gdt_ts, gdt_ha, scorebest, prota_best(maxatom,3)
   real :: etime, tarray(2), time1
   integer :: na, nb, i,&
              bije(maxatom,2), bijebest(maxatom,2),&
@@ -53,7 +53,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
     scorebest = -1.d0
     iglobal = 0
     itrial = 0
-    do while( iglobal < nglobal ) 
+    do while( iglobal < nglobal .and. itrial <= maxtrial  ) 
       itrial = itrial + 1
 
       ! Create random initial point of itrial > 1 
@@ -106,6 +106,11 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           bijebest(i,1) = bije(i,1)
           bijebest(i,2) = bije(i,2)
         end do
+        do i = 1, na
+          prota_best(i,1) = prota(i,1)
+          prota_best(i,2) = prota(i,2)
+          prota_best(i,3) = prota(i,3)
+        end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
@@ -139,7 +144,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
     scorebest = -1.d0
     iglobal = 0
     itrial = 0
-    do while( iglobal < nglobal ) 
+    do while( iglobal < nglobal .and. itrial <= maxtrial ) 
       itrial = itrial + 1
 
       ! Writes the titles for regular iteration printing
@@ -191,6 +196,11 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           bijebest(i,1) = bije(i,1)
           bijebest(i,2) = bije(i,2)
         end do
+        do i = 1, na
+          prota_best(i,1) = prota(i,1)
+          prota_best(i,2) = prota(i,2)
+          prota_best(i,3) = prota(i,3)
+        end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
@@ -213,7 +223,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
     scorebest = -1.d0
     iglobal = 0
     itrial = 0
-    do while( iglobal < nglobal ) 
+    do while( iglobal < nglobal .and. itrial <= maxtrial ) 
       itrial = itrial + 1
 
       ! Writes the titles for regular iteration printing
@@ -269,6 +279,11 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           bijebest(i,1) = bije(i,1)
           bijebest(i,2) = bije(i,2)
         end do
+        do i = 1, na
+          prota_best(i,1) = prota(i,1)
+          prota_best(i,2) = prota(i,2)
+          prota_best(i,3) = prota(i,3)
+        end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
@@ -291,7 +306,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
     scorebest = -1.d0
     iglobal = 0
     itrial = 0
-    do while( iglobal < nglobal ) 
+    do while( iglobal < nglobal .and. itrial <= maxtrial ) 
       itrial = itrial + 1
 
       ! Writes the titles for regular iteration printing
@@ -350,6 +365,11 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           bijebest(i,1) = bije(i,1)
           bijebest(i,2) = bije(i,2)
         end do
+        do i = 1, na
+          prota_best(i,1) = prota(i,1)
+          prota_best(i,2) = prota(i,2)
+          prota_best(i,3) = prota(i,3)
+        end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
@@ -362,6 +382,14 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
   ! POST ANALYSIS AND REPORT                      !
   !                                               !
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  ! Saving the prota_best file in prota to return best model
+
+  do i = 1, na
+    prota(i,1) = prota_best(i,1)
+    prota(i,2) = prota_best(i,2)
+    prota(i,3) = prota_best(i,3)
+  end do
  
   ! Writting the final bijection obtained
 

@@ -133,6 +133,9 @@ subroutine getpars()
     else if(keyword(1:length(keyword)).eq.'-nglobal') then
       call getarg(i+1,value)
       nglobal = ival(value)
+    else if(keyword(1:length(keyword)).eq.'-maxtrial') then
+      call getarg(i+1,value)
+      maxtrial = ival(value)
     else if(keyword(1:length(keyword)).eq.'-seqfix') then
       seqfix = .true.
       i = i - 1
