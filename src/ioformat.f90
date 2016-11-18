@@ -34,7 +34,7 @@ module ioformat
 
       i1 = max_filename_size + 2 
       i2 = 2*max_filename_size + 4
-      imax = i1 + i2 + 59
+      imax = i2 + 80
       write(ichar(1),"(i3)") i1
       write(ichar(2),"(i3)") i2
       write(ichar(3),"(i3)") imax
