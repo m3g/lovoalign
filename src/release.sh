@@ -36,7 +36,7 @@ version=$version_file
 file=$package-$version.tar.gz
 echo "Will create file: $file"
 
-cat $versiontitle | sed -e "s/Version.*/Version\ $version \',\/\&/" > version_tilte_temp.f90
+cat $versionfile | sed -e "s/Version.*/Version\ $version \',\/\&/" > version_title_temp.f90
 \mv -f version_title_temp.f90 $versiontitle
 
 git add -A .
