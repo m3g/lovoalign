@@ -42,7 +42,7 @@ cat $versionfile | sed -e "s/Version.*/Version\ $version \',\/\&/" > version_tit
 git add -A .
 git commit -m "Changed version file to $version"
 git tag -a $version -m "Release $version"
-git push tag $version
+git push --all --tags
 
 newline="<tr><td width=190px valign=top><a href=$giturl/$version.tar.gz> $filename</a></td><td> Release $version </td></tr>"
 htmlfile=$downloads
