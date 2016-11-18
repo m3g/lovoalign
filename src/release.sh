@@ -37,7 +37,7 @@ file=$package-$version.tar.gz
 echo "Will create file: $file"
 
 cat $versionfile | sed -e "s/Version.*/Version\ $version \',\/\&/" > version_title_temp.f90
-\mv -f version_title_temp.f90 $versiontitle
+\mv -f version_title_temp.f90 $versionfile
 
 git add -A .
 git commit -m "Changed version file to $version"
