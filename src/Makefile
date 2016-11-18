@@ -1,19 +1,10 @@
-# configure generated Makefile
-# configure generated Makefile
 #
 # Makefile for LovoAlign: Read the comments if you have some
 #                         problem while compiling.
 #
-# You may use the ./configure script to search automatically for
-# some fortran compiler.
+# If you want, set a different fortran compiler here:
 #
-# This make file will try to compile LovoAlign with the default
-# fortran compiler, defined by the FC directive. For doing this,
-# just type
-#
-#          make 
-#
-FORTRAN = /usr/bin/gfortran
+FORTRAN = gfortran
 #
 FLAGS = -O3 -ffast-math 
 #
