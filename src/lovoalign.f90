@@ -148,7 +148,11 @@ program lovoalign
   dtri = 3.d0
   gdt_threshold = 4.d0
   nglobal = 3
-  maxtrial = 1000
+  if ( mode == 0 ) then
+    maxtrial = 1000
+  else
+    maxtrial = 4
+  end if
  
   ! Default method
 
