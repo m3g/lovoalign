@@ -11,7 +11,7 @@ downloads=~/public_html/lovoalign/versionhistory/downloads.html
 
 # GIT URL:
 
-giturl=https://github.com/leandromartinez98/lovoalign/archive/
+giturl=https://github.com/leandromartinez98/lovoalign/archive
 
 # Name of file containing version number
 
@@ -44,7 +44,7 @@ git commit -m "Changed version file to $version"
 git tag -a $version -m "Release $version"
 git push origin master tag $version
 
-newline="<tr><td width=190px valign=top><a href=$giturl/$version.tar.gz> $filename</a></td><td> Release $version </td></tr>"
+newline="<tr><td width=190px valign=top><a href=$giturl/$version.tar.gz> $file </a></td><td> Release $version </td></tr>"
 htmlfile=$downloads
 
 writeline=yes
