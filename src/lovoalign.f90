@@ -89,7 +89,6 @@ program lovoalign
   logical :: error
   character(len=1) :: resa(maxatom), resb(maxatom)
   character(len=200) :: record, pdbfiles(maxfiles), file1, file2
-  character(len=1000) :: header_list
 
   ! Computing running time
 
@@ -153,25 +152,8 @@ program lovoalign
 
   method = 2
 
-  ! Header for concise output printing
-
-  header_list = "(111('#'),/,&
-           & '# LOVOALIGN ',/&
-           &,'# http://www.ime.unicamp.br/~martinez/lovoalign',/,&
-           &111('#'),/,&
-           &'# Prot A: Variable protein.',/,&
-           &'# Prot B: Target (fixed) protein.',/,&
-           &'# SCORE: Best score obtained.',/,&
-           &'# COV: Coverage (number of corresponding atoms).',/,&
-           &'# RMSD: Root mean square deviation of COV atoms.',/,&
-           &'# COV2: Number of atoms closer than ',f8.3,' Angstroms.',/,&
-           &'# RMSD2: Root mean square deviation of COV2 atoms.',/,&
-           &'# GDT_TS: Global Distance Test (GDT) total score.',/,&
-           &'# GDT_HA: High-accuracy GDT score.',/,&
-           &'# TIME: Time used in this alignment.',/,&
-           &111('#'),/,&
-           &'# Prot A',t16,'Prot B',t35,'SCORE',t46,'COV',t58,'RMSD',&
-           &t64,'COV2',t76,'RMSD2',t84,'GDT_TS',t93,'GDT_HA',t108,'TIME')"
+  ! Set simple formats for output
+  call simpleformats()
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !                                                    !
@@ -249,7 +231,6 @@ program lovoalign
     ! Get parameters from the command line
 
     call getpars()
-    if(iprint.eq.0) write(*,header_list) dtri
 
     ! Read file of protein B (the specified protein will be allways B)
 
@@ -269,6 +250,7 @@ program lovoalign
     ! Read file list and align proteins
 
     call readlist(pdblist,pdbfiles,nfiles)
+    if(iprint.eq.0) write(*,header_list) dtri
 
     ! Start alignments
 
@@ -333,11 +315,11 @@ program lovoalign
     ! Get parameters from the command line
 
     call getpars()
-    if(iprint.eq.0) write(*,header_list) dtri
 
     ! Read the list of pdb files
 
     call readlist(pdblist,pdbfiles,nfiles)
+    if(iprint.eq.0) write(*,header_list) dtri
 
     ! For non-bijective methods, get the number of atoms of all proteins
     ! and order them from biggest to smallest. 
@@ -411,11 +393,12 @@ program lovoalign
     write(*,*) ' TOTAL RUNNING TIME: ', time0
     write(*,dash_line)
   else
-    write(*,"(111('#'),/,&
-              &'# TOTAL RUNNING TIME:',i10,' h ',i6,' min ',f12.4,' s',/,&
-              &111('#'))") int(time0/3600),&
-                          int(mod(time0,3600.)/60),&
-                          mod(time0,60.)
+    write(*,"(a)") hash_line
+    write(*,"('# TOTAL RUNNING TIME:',i10,' h ',i6,' min ',f12.4,' s')") &
+            int(time0/3600),&
+            int(mod(time0,3600.)/60),&
+            mod(time0,60.)
+    write(*,"(a)") hash_line
   end if
  
 end program lovoalign

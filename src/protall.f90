@@ -26,13 +26,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
              numb(maxatom), it, iglobal, itrial, &
              indisord(maxatom-1,maxatom), pair(maxatom)
   character(len=1) :: resa(maxatom), resb(maxatom)
-  character(len=200) :: title_format, data_format, trial_format
   external :: structal, tmscore
-
-  title_format = "(t3,'ITER',t20,'SCORE',t30,'GRADIENT NORM',&
-                  &t45,'COVERAGE',t56,'GAPS',t64,'NEF')"
-  data_format = "(i6,tr1,e17.10,tr1,e17.10,tr4,i6,tr1,i6,tr1,i6)"
-  trial_format = "(t3,'TRIAL: ',i7,' SCORE: ',f12.5,' COVERAGE: ',i6,' GAPS: ',i6,' GLOB:',i2)"
 
   ! Time used in this alignment is computed from here
 
@@ -419,18 +413,10 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
   ! Printing concise output for database comparisons
 
   if(iprint.eq.0) then
-    if(length(protea)-ic(protea)+1.le.10.and.&
-       length(proteb)-ic(proteb)+1.le.10) then
-      write(*,"(t1,a,t12,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
-              protea(ic(protea):length(protea)),&
-              proteb(ic(proteb):length(proteb)),&
-              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_ts, gdt_ha, time1
-    else
-      write(*,"(t1,a,tr1,a,tr1,f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)")&
-              protea(ic(protea):length(protea)),&
-              proteb(ic(proteb):length(proteb)),&
-              scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_ts, gdt_ha, time1
-    end if
+    write(*,concise_format)&
+            protea(ic(protea):length(protea)),&
+            proteb(ic(proteb):length(proteb)),&
+            scorebest, nbijbest, rmsd, nbij_dtri, rmsd2, gdt_ts, gdt_ha, time1
   end if
  
   ! Printing final data
