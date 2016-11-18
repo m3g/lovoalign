@@ -16,8 +16,6 @@ subroutine initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
                       prota(maxatom,3), protb(maxatom,3)
   logical :: seqfix
 
-  if ( seqfix ) return
-
   if(min(na,nb).le.5) then
     write(*,*) ' Too few atoms. Ignoring pseudoprot initial point.'
     return
@@ -25,8 +23,8 @@ subroutine initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
 
   ! Parameters for scoring internal distances
 
-      dzero2 = 100.
-      gap = 1.
+  dzero2 = 100.
+  gap = 1.
 
   ! Initialization based on internal distances and dynamic programming
 
