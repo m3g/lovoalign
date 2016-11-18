@@ -6,7 +6,7 @@ module ioformat
 
   implicit none
   character(len=*), parameter :: dash_line = "('  ',71('-'))"
-  character(len=:), allocatable :: hash_line
+  character(len=200) :: hash_line
   character(len=1000) :: header_list
   character(len=200) :: title_format, data_format, trial_format
   character(len=200) :: concise_format
@@ -40,9 +40,11 @@ module ioformat
       write(ichar(3),"(i3)") imax
       ichar(1) = adjustl(ichar(1))
       ichar(2) = adjustl(ichar(2))
-      allocate(character(imax) :: hash_line)
       do i = 1, imax
         hash_line(i:i) = "#"
+      end do
+      do i = imax + 1, 200
+        hash_line(i:i) = " "
       end do
 
       write(header_list,*) "(",ichar(3),"('#'),/,&

@@ -400,12 +400,12 @@ program lovoalign
     write(*,*) ' TOTAL RUNNING TIME: ', time0
     write(*,dash_line)
   else
-    write(*,"(a)") hash_line
+    write(*,"(a)") trim(hash_line)
     write(*,"('# TOTAL RUNNING TIME:',i10,' h ',i6,' min ',f12.4,' s')") &
             int(time0/3600),&
             int(mod(time0,3600.)/60),&
             mod(time0,60.)
-    write(*,"(a)") hash_line
+    write(*,"(a)") trim(hash_line)
   end if
  
 end program lovoalign
