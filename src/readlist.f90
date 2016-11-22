@@ -37,6 +37,4 @@ subroutine readlist(pdblist,pdbfiles,nfiles)
     stop
   end if
 
-  call listformats()
-
 end subroutine readlist

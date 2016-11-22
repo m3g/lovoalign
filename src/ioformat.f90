@@ -14,21 +14,18 @@ module ioformat
 
   contains
 
-    subroutine simpleformats()
-
-      implicit none
-      title_format = "(t3,'ITER',t20,'SCORE',t30,'GRADIENT NORM',&
-                      &t45,'COVERAGE',t56,'GAPS',t64,'NEF')"
-      data_format = "(i6,tr1,e17.10,tr1,e17.10,tr4,i6,tr1,i6,tr1,i6)"
-      trial_format = "(t3,'TRIAL: ',i7,' SCORE: ',f12.5,' COVERAGE: ',i6,' GAPS: ',i6,' GLOB:',i2)"
-       
-    end subroutine simpleformats
-
-    subroutine listformats()
+    subroutine outputformats()
 
       implicit none
       integer i, i1, i2, imax
       character(len=3) :: ichar(3)
+
+      ! Formats for single runs
+
+      title_format = "(t3,'ITER',t20,'SCORE',t30,'GRADIENT NORM',&
+                      &t45,'COVERAGE',t56,'GAPS',t64,'NEF')"
+      data_format = "(i6,tr1,e17.10,tr1,e17.10,tr4,i6,tr1,i6,tr1,i6)"
+      trial_format = "(t3,'TRIAL: ',i7,' SCORE: ',f12.5,' COVERAGE: ',i6,' GAPS: ',i6,' GLOB:',i2)"
 
       ! Header for concise output printing (note that dtri is printed here)
 
@@ -51,8 +48,10 @@ module ioformat
                & '# LOVOALIGN ',/&
                &,'# http://www.ime.unicamp.br/~martinez/lovoalign',/,"&
                &,ichar(3),"('#'),/,&
-               &'# Prot A: Variable protein.',/,&
-               &'# Prot B: Target (fixed) protein.',/,&
+               &'# Prot A: Variable protein: ',a,/,&
+               &'# Prot B: Target (fixed) protein: ',a,/,&
+               &'# PDB file list: ',a,/,&
+               &'# Number of files in list: ',i8,/,&
                &'# SCORE: Best score obtained.',/,&
                &'# COV: Coverage (number of corresponding atoms).',/,&
                &'# RMSD: Root mean square deviation of COV atoms.',/,&
@@ -69,6 +68,6 @@ module ioformat
                            "(t1,a,t",adjustl(ichar(1)),",a,t",adjustl(ichar(2)),&
                            "f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)"
 
-    end subroutine listformats
+    end subroutine outputformats
 
 end module ioformat

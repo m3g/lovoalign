@@ -77,10 +77,11 @@ program lovoalign
   use sizes
   use inputpars
   use ioformat
+  use file_operations
   use initrandom
   implicit none
   integer :: i, j, narg, mode, &
-             na, nb, length, ic, iargc, &
+             na, nb, iargc, &
              nfiles, numa(maxatom), numb(maxatom), &
              indisord(maxatom-1,maxatom)
   double precision :: prota(maxatom,3), protb(maxatom,3), &
@@ -158,10 +159,6 @@ program lovoalign
 
   method = 2
 
-  ! Set simple formats for output
-
-  call simpleformats()
-
   ! Initialize random number generator
   seed = 1234567
   call init_random_number(seed)
@@ -181,7 +178,12 @@ program lovoalign
     ! Read command line parameters
 
     if(narg.gt.0) call getpars()
-    if(iprint.eq.0) write(*,header_list) dtri
+    max_filename_size = max(length(basename(protea)),length(basename(proteb)))
+    call outputformats()
+    if(iprint.eq.0) then
+      write(*,header_list) trim(adjustl(basename(protea))), &
+                           trim(adjustl(basename(proteb))), "none", 1, dtri
+    end if
 
     ! Read protein coordinates
 
@@ -226,7 +228,7 @@ program lovoalign
       call writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
                     rmin1,rmax1,na,resa,numa,proteb,all)
       if(iprint.ge.1) then
-        write(*,*) ' Wrote file: ', pdbout(ic(pdbout):length(pdbout))
+        write(*,*) ' Wrote file: ', trim(adjustl(pdbout))
         write(*,dash_line)
       end if
     end if
@@ -261,11 +263,16 @@ program lovoalign
     ! Read file list and align proteins
 
     call readlist(pdblist,pdbfiles,nfiles)
-    if(iprint.eq.0) write(*,header_list) dtri
+    max_filename_size = max(max_filename_size,length(remove_path(proteb)))
+    call outputformats()
+    if(iprint.eq.0) write(*,header_list) "from list", &
+                                         trim(adjustl(proteb)), &
+                                         trim(adjustl(pdblist)), &
+                                         nfiles, dtri
 
     ! Start alignments
 
-    file1 = proteb(ic(proteb):length(proteb))
+    file1 = trim(adjustl(proteb))
     do i = 1, nfiles 
 
       ! Read file for protein A
@@ -277,7 +284,7 @@ program lovoalign
 
       if ( skip ) then
         file2 = pdbfiles(i)
-        file2 = file2(ic(file2):length(file2))
+        file2 = trim(adjustl(file2))
         if ( file2 == file1 ) then
           skip = .false. 
         end if
@@ -330,7 +337,11 @@ program lovoalign
     ! Read the list of pdb files
 
     call readlist(pdblist,pdbfiles,nfiles)
-    if(iprint.eq.0) write(*,header_list) dtri
+    call outputformats()
+    if(iprint.eq.0) write(*,header_list) "from list", &
+                                         "from list", &
+                                         trim(adjustl(pdblist)), &
+                                         nfiles, dtri
 
     ! For non-bijective methods, get the number of atoms of all proteins
     ! and order them from biggest to smallest. 
