@@ -17,7 +17,12 @@ subroutine randomini(na,nb,prota,protb,nbij,bije)
     ib = ia
   else
     call random_number(random)
-    ib = int(random*(nb-nbij))+1
+    if ( random > 0.5d0 ) then
+      call random_number(random)
+      ib = int(random*(nb-nbij))+1
+    else
+      ib = ia
+    end if
   end if
   do i = 1, nbij
     bije(i,1) = ia + i - 1

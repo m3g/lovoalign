@@ -95,14 +95,10 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         if(iprint.eq.2) write(*,data_format) it, score, gnor, nbij, ngaps,nef
 
       end do
-      if ( abs(score-scorebest) < tol*score ) then
-        iglobal = iglobal + 1
-        if ( iglobal == nglobal ) then
-          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
-        end if
-      end if
       if ( score > scorebest ) then
-        iglobal = 1
+        if ( abs(score-scorebest) > tol*score ) then
+          iglobal = 1
+        end if
         nbijbest = nbij
         scorebest = score
         do i = 1, nbij
@@ -115,6 +111,13 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           prota_best(i,3) = prota(i,3)
         end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      else
+        if ( scorebest-score <= tol*score ) then
+          iglobal = iglobal + 1
+          if ( iglobal == nglobal .and. iprint == 1 ) then
+            write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
+          end if
+        end if
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
 
@@ -188,12 +191,6 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         if(iprint.eq.2) write(*,data_format) it, score, gnor, nbij, ngaps, nef
 
       end do
-      if ( abs(score-scorebest) < tol*score ) then
-        iglobal = iglobal + 1
-        if ( iglobal == nglobal ) then
-          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
-        end if
-      end if
       if ( score > scorebest ) then
         iglobal = 1
         nbijbest = nbij
@@ -208,6 +205,13 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           prota_best(i,3) = prota(i,3)
         end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      else
+        if ( scorebest-score <= tol*score ) then
+          iglobal = iglobal + 1
+          if ( iglobal == nglobal .and. iprint == 1 ) then
+            write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
+          end if
+        end if
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
 
@@ -274,14 +278,10 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         if(iprint.eq.2) write(*,data_format) it, score, score-prevscore, nbij, ngaps, nef
 
       end do
-      if ( abs(score-scorebest) < tol*score ) then
-        iglobal = iglobal + 1
-        if ( iglobal == nglobal ) then
-          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
-        end if
-      end if
       if ( score > scorebest ) then
-        iglobal = 1
+        if ( abs(score-scorebest) > tol*score ) then
+          iglobal = 1
+        end if
         nbijbest = nbij
         scorebest = score
         do i = 1, nbij
@@ -294,6 +294,13 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           prota_best(i,3) = prota(i,3)
         end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      else
+        if ( scorebest-score <= tol*score ) then
+          iglobal = iglobal + 1
+          if ( iglobal == nglobal .and. iprint == 1 ) then
+            write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
+          end if
+        end if
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
 
@@ -363,14 +370,10 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         if(iprint.eq.2) write(*,data_format) it, score, score-prevscore, nbij, ngaps, nef
 
       end do
-      if ( abs(score-scorebest) < tol*score ) then
-        iglobal = iglobal + 1
-        if ( iglobal == nglobal ) then
-          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
-        end if
-      end if
       if ( score > scorebest ) then
-        iglobal = 1
+        if ( abs(score-scorebest) > tol*score ) then
+          iglobal = 1
+        end if
         nbijbest = nbij
         scorebest = score
         do i = 1, nbij
@@ -383,6 +386,13 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
           prota_best(i,3) = prota(i,3)
         end do
         if(iprint.eq.1) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
+      else
+        if ( scorebest-score <= tol*score ) then
+          iglobal = iglobal + 1
+          if ( iglobal == nglobal .and. iprint == 1 ) then
+            write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
+          end if
+        end if
       end if
       if(iprint.eq.2) write(*,trial_format) itrial, score, nbij, ngaps, iglobal
     end do
