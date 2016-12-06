@@ -98,7 +98,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
         if ( iglobal == nglobal ) then
-          write(*,*) ' Repeated best solution found ', nglobal,' times at trial ', itrial
+          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
         end if
       end if
       if ( score > scorebest ) then
@@ -191,7 +191,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
         if ( iglobal == nglobal ) then
-          write(*,*) ' Repeated best solution found ', nglobal,' times at trial ', itrial
+          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
         end if
       end if
       if ( score > scorebest ) then
@@ -277,7 +277,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
         if ( iglobal == nglobal ) then
-          write(*,*) ' Repeated best solution found ', nglobal,' times at trial ', itrial
+          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
         end if
       end if
       if ( score > scorebest ) then
@@ -366,7 +366,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
         if ( iglobal == nglobal ) then
-          write(*,*) ' Repeated best solution found ', nglobal,' times at trial ', itrial
+          write(*,"(a,i5,a,i5)") '  Repeated best solution found ', nglobal,' times at trial ', itrial
         end if
       end if
       if ( score > scorebest ) then
