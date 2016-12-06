@@ -67,5 +67,12 @@ done < "$htmlfile"
 rm $htmlfile
 mv htmlfile_new_temp $htmlfile   
 
+echo "----------------------"
+echo "CHANGE LOG:"
+echo "----------------------"
+range=`git tag | tail -n 2 | xargs | sed 's! !...!'`
+git log --pretty=oneline $range | awk '{$1=""; print "-"$0}'
+echo "----------------------"
+
 echo " Done. " 
 
