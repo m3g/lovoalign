@@ -178,7 +178,7 @@ program lovoalign
     ! Read command line parameters
 
     if(narg.gt.0) call getpars()
-    max_filename_size = max(length(basename(protea)),length(basename(proteb)))
+    max_filename_size = max(length(remove_path(protea)),length(remove_path(proteb)))
     call outputformats()
     if(iprint.eq.0) then
       write(*,header_list) trim(adjustl(basename(protea))), &

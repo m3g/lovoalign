@@ -67,7 +67,7 @@ module file_operations
       end do
       i = i + 1
       remove_path(1:ilength-i+1) = remove_path(i:ilength)
-      do i = ilength-i+1, 200
+      do i = ilength-i+2, 200
         remove_path(i:i) = achar(32)
       end do
     
