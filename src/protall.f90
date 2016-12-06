@@ -97,6 +97,9 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       end do
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
+        if ( iglobal == nglobal ) then
+          write(*,*) ' Best solution found ', nglobal,' times. '
+        end if
       end if
       if ( score > scorebest ) then
         iglobal = 1
@@ -187,6 +190,9 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       end do
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
+        if ( iglobal == nglobal ) then
+          write(*,*) ' Best solution found ', nglobal,' times. '
+        end if
       end if
       if ( score > scorebest ) then
         iglobal = 1
@@ -270,6 +276,9 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       end do
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
+        if ( iglobal == nglobal ) then
+          write(*,*) ' Best solution found ', nglobal,' times. '
+        end if
       end if
       if ( score > scorebest ) then
         iglobal = 1
@@ -356,6 +365,9 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       end do
       if ( abs(score-scorebest) < tol*score ) then
         iglobal = iglobal + 1
+        if ( iglobal == nglobal ) then
+          write(*,*) ' Best solution found ', nglobal,' times. '
+        end if
       end if
       if ( score > scorebest ) then
         iglobal = 1
