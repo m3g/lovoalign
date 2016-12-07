@@ -23,7 +23,7 @@ subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
 
   use sizes
   implicit none
-  integer :: na, nb, i, j, nbij, ngaps, bije(maxatom,2), nmin
+  integer :: na, nb, i, j, nbij, ngaps, bije(maxatom,2)
   double precision prota(maxatom,3), protb(maxatom,3), dzero2,&
                    dist, score, scorin(maxatom,maxatom), gap,&
                    bijscore(maxatom)
@@ -33,8 +33,7 @@ subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
   
   if ( seqfix ) then
     score = 0.d0
-    nmin = min(na,nb)
-    do i = 1, nmin
+    do i = 1, min(na,nb)
       dist = (prota(i,1) - protb(i,1))**2 &
            + (prota(i,2) - protb(i,2))**2 &
            + (prota(i,3) - protb(i,3))**2
@@ -42,8 +41,8 @@ subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
       bije(i,1) = i
       bije(i,2) = i
     end do
-    score = score / dfloat(nmin)
-    nbij = nmin
+    score = score / dfloat(max(na,nb))
+    nbij = min(na,nb)
     ngaps = 0
     return
   end if
@@ -62,6 +61,6 @@ subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
   ! Perform dynamic programming to obtain the best bijection
 
   call prodin(na,nb,scorin,gap,ngaps,bije,nbij,bijscore,score)
-  score = score / dfloat(nb)
+  score = score / dfloat(max(na,nb))
 
 end subroutine tmscore

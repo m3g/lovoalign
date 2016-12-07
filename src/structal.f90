@@ -24,7 +24,7 @@ subroutine structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
 
   use sizes
   implicit none
-  integer :: na, nb, i, j, nbij, ngaps, bije(maxatom,2), nmin
+  integer :: na, nb, i, j, nbij, ngaps, bije(maxatom,2)
   double precision :: prota(maxatom,3), protb(maxatom,3), dzero2,&
                       dist, score, scorin(maxatom,maxatom), gap,&
                       bijscore(maxatom)
@@ -33,9 +33,8 @@ subroutine structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
   ! If using a fixed bijection, just compute score and return
   
   if ( seqfix ) then
-    nmin = min(na,nb)
     score = 0.d0
-    do i = 1, nmin
+    do i = 1, min(na,nb)
       dist = (prota(i,1) - protb(i,1))**2 &
            + (prota(i,2) - protb(i,2))**2 &
            + (prota(i,3) - protb(i,3))**2
@@ -44,7 +43,7 @@ subroutine structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
       bije(i,1) = i
       bije(i,2) = i
     end do
-    nbij = nmin
+    nbij = min(na,nb)
     ngaps = 0
     return
   end if

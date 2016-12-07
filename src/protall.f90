@@ -439,6 +439,10 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
     write(*,dash_line)
     write(*,"(a14,tr1,f12.6,tr1,a10,tr1,i5,tr1,a6,tr1,f10.6,tr1,a6,i4)")&
             '  FINAL SCORE:', scorebest,' COVERAGE:', nbijbest,' RMSD:', rmsd,' GAPS:', ngaps
+    if ( method == 2 ) then
+      write(*,"(a,f12.6)") "  Final score normalized by smallest protein: ",& 
+                           scorebest*max(na,nb)/min(na,nb)
+    end if
   endif
  
   ! Compute rmsd for atoms which are closer than some tolerance
