@@ -11,11 +11,15 @@ module initrandom
     
     subroutine init_random_number(seed)
       implicit none
-      integer :: i, seed, iseed(12)
-      do i = 1, 12
+      integer :: i, seed, size
+      integer, allocatable :: iseed(:)
+      call random_seed(size=size)
+      allocate(iseed(size))
+      do i = 1, size
         iseed(i) = i*seed
       end do
       call random_seed(put=iseed)
+      deallocate(iseed)
       return
     end subroutine init_random_number
     
