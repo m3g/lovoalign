@@ -5,6 +5,7 @@
 subroutine writebije(na,nb,resa,resb,numa,numb,bije,nbij)
 
   use sizes
+  use bijetype
   implicit none
       
   integer :: na, nb, bije(maxatom,2), nbij, nlines,&

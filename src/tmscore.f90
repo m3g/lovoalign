@@ -31,7 +31,7 @@ subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
 
   ! If using a fixed bijection, just compute score and return
   
-  if ( seqtype == 1 .or. seqtype == 2 ) then
+  if ( seqtype > 0 ) then
     score = 0.d0
     nbij = fixnbij
     do i = 1, nbij

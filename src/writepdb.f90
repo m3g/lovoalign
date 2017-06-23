@@ -16,10 +16,14 @@ subroutine writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
   double precision :: prota(maxatom,3), aux(maxatom,3), cmo(3),&
                       cma(3), xm(maxatom), ym(maxatom), zm(maxatom),&
                       xp(maxatom), yp(maxatom), zp(maxatom), q(4,4),&
-                      a(4,4), qmin, u(3,3), xn(3)
+                      a(4,4), u(3,3), xn(3)
   character(len=200) pdbout, protea, record, proteb
   character(len=1) chaina, resa(maxatom)
   logical :: all, mark, error, beta1, ocup1
+
+  ! For dsyev
+  real :: work(12)
+  integer :: info
 
   ! Reading the original CA coordinates
 
@@ -105,30 +109,21 @@ subroutine writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
      
   ! Computing the eigenvectors 'a' and eigenvalues 'q' of the q matrix
 
-  call jacobi(q,a,4)
+  call dsyev('V','U',4,q,4,a,work,12,info)
 
-  ! Choosing the quaternion that corresponds to the minimum
+  ! Computing the rotation matrix
 
-  qmin = 1.e30
-  do i = 1, 4
-    if(q(i,i).lt.qmin) then
-      iq = i
-      qmin = q(i,i)
-    end if
-  end do
-  
-! Computing the rotation matrix
+  iq = 1
+  u(1,1) = q(1,iq)**2 + q(2,iq)**2 - q(3,iq)**2 - q(4,iq)**2
+  u(1,2) = 2. * ( q(2,iq)*q(3,iq) + q(1,iq)*q(4,iq) )
+  u(1,3) = 2. * ( q(2,iq)*q(4,iq) - q(1,iq)*q(3,iq) )
+  u(2,1) = 2. * ( q(2,iq)*q(3,iq) - q(1,iq)*q(4,iq) )
+  u(2,2) = q(1,iq)**2 + q(3,iq)**2 - q(2,iq)**2 - q(4,iq)**2
+  u(2,3) = 2. * ( q(3,iq)*q(4,iq) + q(1,iq)*q(2,iq) )
+  u(3,1) = 2. * ( q(2,iq)*q(4,iq) + q(1,iq)*q(3,iq) )
+  u(3,2) = 2. * ( q(3,iq)*q(4,iq) - q(1,iq)*q(2,iq) )
+  u(3,3) = q(1,iq)**2 + q(4,iq)**2 - q(2,iq)**2 - q(3,iq)**2    
 
-  u(1,1) = a(1,iq)**2 + a(2,iq)**2 - a(3,iq)**2 - a(4,iq)**2
-  u(1,2) = 2. * ( a(2,iq)*a(3,iq) + a(1,iq)*a(4,iq) )
-  u(1,3) = 2. * ( a(2,iq)*a(4,iq) - a(1,iq)*a(3,iq) )  
-  u(2,1) = 2. * ( a(2,iq)*a(3,iq) - a(1,iq)*a(4,iq) )  
-  u(2,2) = a(1,iq)**2 + a(3,iq)**2 - a(2,iq)**2 - a(4,iq)**2 
-  u(2,3) = 2. * ( a(3,iq)*a(4,iq) + a(1,iq)*a(2,iq) )  
-  u(3,1) = 2. * ( a(2,iq)*a(4,iq) + a(1,iq)*a(3,iq) )  
-  u(3,2) = 2. * ( a(3,iq)*a(4,iq) - a(1,iq)*a(2,iq) )  
-  u(3,3) = a(1,iq)**2 + a(4,iq)**2 - a(2,iq)**2 - a(3,iq)**2 
- 
   ! Now we need to read the pdb file again and apply the transformations
   ! resulted in the best alignment for all atoms of the protein
 

@@ -143,6 +143,11 @@ subroutine getpars()
     else if(keyword(1:length(keyword)).eq.'-seqnum') then
       seqtype = 2
       i = i - 1
+    else if(keyword(1:length(keyword)).eq.'-fasta') then
+      seqtype = 3
+      call getarg(i+1,value)
+      fastafile = value(1:length(value))
+      call readfasta()
     else if(keyword(1:length(keyword)).eq.'-noini') then
       useini = .false.
       i = i - 1

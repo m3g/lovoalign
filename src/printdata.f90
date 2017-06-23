@@ -7,6 +7,7 @@ subroutine printdata(protea,proteb,na,nb,chaina,&
                      useini)
 
   use ioformat
+  use bijetype
   implicit none
   integer :: na, nb, maxit, method, length, ic
   double precision :: gap, dtri, gdt_threshold
@@ -26,6 +27,7 @@ subroutine printdata(protea,proteb,na,nb,chaina,&
   if(method.eq.3) write(*,*) ' Will maximize the TRIANGULAR score '
   if(method.eq.4) write(*,*) ' Will maximize the NON-BIJECTIVE TRIANGULAR score '
   write(*,*) ' Penalization for gaps: ', gap
+  if(seqtype == 3) write(*,*) ' Sequence alignment given in fasta file: ', trim(adjustl(fastafile))
   write(*,*) ' Maximum number of iterations: ', maxit
   if(useini) write(*,*) ' Using internal-distance initial point.'
   if(method.eq.3) then

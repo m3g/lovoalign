@@ -53,6 +53,7 @@ FILES = lovoalign.f90     \
         writenonbije.f90  \
         writepdb.f90      \
         writermsf.f90     \
+        readfasta.f90     \
         dist.f90          \
         dval.f90          \
         randomini.f90     \
@@ -60,7 +61,6 @@ FILES = lovoalign.f90     \
         ival.f90          \
         length.f90        \
         letter.f90        \
-        jacobi.f          \
         flashsort.f90     \
         optim.f 
 BIN=../bin

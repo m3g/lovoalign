@@ -20,7 +20,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
                       disord(maxatom-1,maxatom), &
                       gdt_ts, gdt_ha, scorebest, prota_best(maxatom,3)
   real :: etime, tarray(2), time1
-  integer :: na, nb, i, j, jlast, &
+  integer :: na, nb, i, j, ii, jj, jlast, &
              bije(maxatom,2), bijebest(maxatom,2),&
              ngaps, nbij, nbijbest, nef, nbij_dtri,&
              length, ic, numa(maxatom),&
@@ -60,6 +60,25 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         end if
       end do
     end do aatoms
+  end if
+  if ( seqtype == 3 ) then
+    fixnbij = 0
+    i = 1
+    j = 1
+    ii = 1
+    jj = 1
+    do while( ii <= na .and. jj <= nb ) 
+      if ( fasta(1)%seq(i:i) /= "-" .and. &
+           fasta(2)%seq(j:j) /= "-") then
+        fixnbij = fixnbij + 1
+        fixbije(fixnbij,1) = ii
+        fixbije(fixnbij,2) = jj
+      end if
+      if ( fasta(1)%seq(i:i) /= "-" ) ii = ii + 1
+      if ( fasta(2)%seq(j:j) /= "-" ) jj = jj + 1
+      i = i + 1
+      j = j + 1
+    end do
   end if
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
