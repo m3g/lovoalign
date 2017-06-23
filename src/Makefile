@@ -6,7 +6,7 @@
 #
 FORTRAN = gfortran
 #
-FLAGS = -O3 -ffast-math 
+FLAGS = -O3 -ffast-math -llapack
 #
 ###################################################################
 #                                                                 #
@@ -20,6 +20,7 @@ ifeq ($(FORTRAN),AUTO)
 FORTRAN = $(FC)
 endif 
 MODULES = sizes.f90             \
+          bijetype.f90          \
           inputpars.f90         \
           file_operations.f90   \
           initrandom.f90        \
@@ -68,15 +69,15 @@ lovoalign : $(MODULES) $(FILES)
 	@echo " Compiling LovoAlign with $(FORTRAN) " 
 	@echo " Flags: $(FLAGS) " 
 	@echo " ------------------------------------------------------ " 
-	@$(FORTRAN) $(FLAGS) $(MODULES) $(FILES) -o $(BIN)/lovoalign
+	@$(FORTRAN) -o $(BIN)/lovoalign $(MODULES) $(FILES) $(FLAGS) 
 	@echo " LovoAlign succesfully built." 
 	@echo " ------------------------------------------------------ " 
 devel: $(MODULES) $(FILES)
 	@echo " ------------------------------------------------------ " 
 	@echo " Compiling LovoAlign with $(FORTRAN) " 
-	@echo " Flags: -Wall -fbounds-check" 
+	@echo " Flags: -Wall -fbounds-check -llapack" 
 	@echo " ------------------------------------------------------ " 
-	@$(FORTRAN) -Wall -fbounds-check $(MODULES) $(FILES) -o $(BIN)/lovoalign
+	@$(FORTRAN) -o $(BIN)/lovoalign  $(MODULES) $(FILES) -llapack -Wall -fbounds-check 
 	@echo " LovoAlign succesfully built." 
 	@echo " ------------------------------------------------------ " 
 clean:

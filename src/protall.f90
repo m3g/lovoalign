@@ -10,6 +10,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
   use sizes
   use inputpars
   use ioformat
+  use bijetype
   implicit none
 
   double precision :: dzero, prota(maxatom,3), protb(maxatom,3),&
@@ -19,7 +20,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
                       disord(maxatom-1,maxatom), &
                       gdt_ts, gdt_ha, scorebest, prota_best(maxatom,3)
   real :: etime, tarray(2), time1
-  integer :: na, nb, i,&
+  integer :: na, nb, i, j, jlast, &
              bije(maxatom,2), bijebest(maxatom,2),&
              ngaps, nbij, nbijbest, nef, nbij_dtri,&
              length, ic, numa(maxatom),&
@@ -35,6 +36,31 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
   ! This is the relative precision for score convergence
 
   tol = 1.d-2
+
+  ! Define the fixed sequence alignment, if it is the case
+
+  if ( seqtype == 1 ) then
+    fixnbij = min(na,nb)
+    do i = 1, fixnbij
+      fixbije(i,1) = i 
+      fixbije(i,2) = i 
+    end do
+  end if
+  if ( seqtype == 2 ) then
+    fixnbij = 0 
+    jlast = 1
+    aatoms : do i = 1, na
+      do j = jlast, nb
+        if ( numa(i) == numb(j) ) then
+          fixnbij = fixnbij + 1
+          fixbije(fixnbij,1) = i
+          fixbije(fixnbij,2) = j
+          jlast = j
+          cycle aatoms
+        end if
+      end do
+    end do aatoms
+  end if
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !                                                                !
@@ -73,7 +99,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       ! Compute the DP bijection and the score at initial point          
 
       call structal(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                    bijscore,ngaps,score,seqfix)
+                    bijscore,ngaps,score)
 
       nef = nef + 1
       if(iprint.eq.2) write(*,data_format) it, score, 0.d0, nbij, ngaps,nef
@@ -88,7 +114,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         ! Perform a newton step to maximize the score given the bijection
 
         call newton(structal,na,nb,prota,protb,score,bije,bijscore,&
-                    dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
+                    dzero2,scale,nbij,gap,ngaps,nef,gnor)
 
         ! Output regular iteration data
             
@@ -170,7 +196,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       ! Compute the DP bijection and the score at initial point          
 
       call tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                   bijscore,ngaps,score,seqfix)
+                   bijscore,ngaps,score)
       nef = nef + 1
       if(iprint.eq.2) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
             
@@ -184,7 +210,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         ! Perform a newton step to maximize the score given the bijection
 
         call newton(tmscore,na,nb,prota,protb,score,bije,bijscore,&
-                    dzero2,scale,nbij,gap,ngaps,nef,gnor,seqfix)
+                    dzero2,scale,nbij,gap,ngaps,nef,gnor)
 
         ! Output regular iteration data
             
@@ -253,7 +279,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       ! Compute the correspondence and the score at initial point          
 
       call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
-                  bijscore,ngaps,score,seqfix)
+                  bijscore,ngaps,score)
       nef = nef + 1
       if(iprint.eq.2) write(*,data_format) it, score, 0.d0, nbij, ngaps, nef
             
@@ -271,7 +297,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
         ! Compute the DP bijection and the score at the new orientation
 
         call triang(prota,protb,na,nb,dtri2,gap,bije,nbij,bijscore,ngaps,&
-                    score,seqfix)
+                    score)
 
         ! Output regular iteration data
             

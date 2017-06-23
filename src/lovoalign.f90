@@ -65,6 +65,7 @@
 !    -gdt_threshold [real] Threshold distance for GDT scores (default: 4.d0)
 !    -seqoff               Do not write sequence alignment
 !    -seqfix               Use a fixed sequence alignment (1-1,2-2,...)
+!    -seqnum               Use a fixed sequence alignment, according to residue numbers
 !    -rmsf [filename]      Write rmsf profile to file.
 !    -rmsftrend [filename] Write rmsf profile trend to file (fraction of pairs
 !                          with rmsf smaller than threshold)
@@ -76,6 +77,7 @@ program lovoalign
 
   use sizes
   use inputpars
+  use bijetype
   use ioformat
   use file_operations
   use initrandom
@@ -144,7 +146,7 @@ program lovoalign
   rmax2 = 1000000
   all = .false.
   seqoff = .false.
-  seqfix = .false.
+  seqtype = 0
   useini = .true.
   dtri = 3.d0
   gdt_threshold = 4.d0
@@ -209,7 +211,7 @@ program lovoalign
     ! proteins ready for structural alignment
 
     if(useini) then
-      call initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
+      call initial(pseudoa,pseudob,na,nb,prota,protb)
     else
       call tocm(prota,protb,na,nb)
     end if
@@ -309,7 +311,7 @@ program lovoalign
         ! Compute initial point
 
         if(useini) then
-          call initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
+          call initial(pseudoa,pseudob,na,nb,prota,protb)
         else
           call tocm(prota,protb,na,nb)
         end if
@@ -393,7 +395,7 @@ program lovoalign
             ! Compute initial point
             
             if(useini) then 
-              call initial(pseudoa,pseudob,na,nb,prota,protb,seqfix)
+              call initial(pseudoa,pseudob,na,nb,prota,protb)
             else
               call tocm(prota,protb,na,nb)
             end if

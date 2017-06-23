@@ -5,6 +5,7 @@
 subroutine getpars()
 
   use sizes
+  use bijetype
   use inputpars
   use ioformat
   implicit none
@@ -137,7 +138,10 @@ subroutine getpars()
       call getarg(i+1,value)
       maxtrial = ival(value)
     else if(keyword(1:length(keyword)).eq.'-seqfix') then
-      seqfix = .true.
+      seqtype = 1
+      i = i - 1
+    else if(keyword(1:length(keyword)).eq.'-seqnum') then
+      seqtype = 2
       i = i - 1
     else if(keyword(1:length(keyword)).eq.'-noini') then
       useini = .false.

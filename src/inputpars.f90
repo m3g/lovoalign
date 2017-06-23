@@ -8,7 +8,7 @@ module inputpars
   character(len=1) :: chaina, chainb
   character(len=200) :: protea, proteb, pdblist, pdbout
   logical :: output, useini
-  logical :: all, seqoff, seqfix
+  logical :: all, seqoff
   logical :: beta1, beta2, ocup1, ocup2
   logical :: rmsf, rmsftrend
   logical :: skip

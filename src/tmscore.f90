@@ -19,30 +19,30 @@
 !
 
 subroutine tmscore(prota,protb,na,nb,dzero2,gap,bije,nbij,&
-                   bijscore,ngaps,score,seqfix)
+                   bijscore,ngaps,score)
 
   use sizes
+  use bijetype
   implicit none
   integer :: na, nb, i, j, nbij, ngaps, bije(maxatom,2)
   double precision prota(maxatom,3), protb(maxatom,3), dzero2,&
                    dist, score, scorin(maxatom,maxatom), gap,&
                    bijscore(maxatom)
-  logical :: seqfix
 
   ! If using a fixed bijection, just compute score and return
   
-  if ( seqfix ) then
+  if ( seqtype == 1 .or. seqtype == 2 ) then
     score = 0.d0
-    do i = 1, min(na,nb)
-      dist = (prota(i,1) - protb(i,1))**2 &
-           + (prota(i,2) - protb(i,2))**2 &
-           + (prota(i,3) - protb(i,3))**2
+    nbij = fixnbij
+    do i = 1, nbij
+      bije(i,1) = fixbije(i,1)
+      bije(i,2) = fixbije(i,2)
+      dist = (prota(bije(i,1),1) - protb(bije(i,2),1))**2 &
+           + (prota(bije(i,1),2) - protb(bije(i,2),2))**2 &
+           + (prota(bije(i,1),3) - protb(bije(i,2),3))**2
       score = score + 1.d0 / ( 1.d0 + dist / dzero2 )
-      bije(i,1) = i
-      bije(i,2) = i
     end do
     score = score / dfloat(max(na,nb))
-    nbij = min(na,nb)
     ngaps = 0
     return
   end if

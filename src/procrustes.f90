@@ -26,9 +26,12 @@ subroutine procrustes(nbij,na,bije,xvar,yref)
   double precision :: x(maxatom,3), y(maxatom,3),&
                       cmx(3), cmy(3), q(4,4), xp(maxatom),&
                       yp(maxatom), zp(maxatom), xm(maxatom),&
-                      ym(maxatom), zm(maxatom), qmin,&
+                      ym(maxatom), zm(maxatom), &
                       a(4,4), u(3,3), xvar(maxatom, 3), vecaux(3),&
                       yref(maxatom,3)
+  ! For dsyev
+  real :: work(12)
+  integer :: info
 
   ! Safeguard for the case in which the bijection contains only one atom
 
@@ -121,31 +124,21 @@ subroutine procrustes(nbij,na,bije,xvar,yref)
      
   ! Computing the eigenvectors 'a' and eigenvalues 'q' of the q matrix
 
-  call jacobi(q,a,4)
+  call dsyev('V','U',4,q,4,a,work,12,info)
 
-  ! Choosing the quaternion that corresponds to the minimum
-
-  iq = 1
-  qmin = q(1,1)
-  do i = 2, 4
-    if(q(i,i).lt.qmin) then
-      iq = i
-      qmin = q(i,i)
-    end if
-  end do
-  
   ! Computing the rotation matrix
 
-  u(1,1) = a(1,iq)**2 + a(2,iq)**2 - a(3,iq)**2 - a(4,iq)**2
-  u(1,2) = 2. * ( a(2,iq)*a(3,iq) + a(1,iq)*a(4,iq) )
-  u(1,3) = 2. * ( a(2,iq)*a(4,iq) - a(1,iq)*a(3,iq) )  
-  u(2,1) = 2. * ( a(2,iq)*a(3,iq) - a(1,iq)*a(4,iq) )  
-  u(2,2) = a(1,iq)**2 + a(3,iq)**2 - a(2,iq)**2 - a(4,iq)**2 
-  u(2,3) = 2. * ( a(3,iq)*a(4,iq) + a(1,iq)*a(2,iq) )  
-  u(3,1) = 2. * ( a(2,iq)*a(4,iq) + a(1,iq)*a(3,iq) )  
-  u(3,2) = 2. * ( a(3,iq)*a(4,iq) - a(1,iq)*a(2,iq) )  
-  u(3,3) = a(1,iq)**2 + a(4,iq)**2 - a(2,iq)**2 - a(3,iq)**2 
- 
+  iq = 1
+  u(1,1) = q(1,iq)**2 + q(2,iq)**2 - q(3,iq)**2 - q(4,iq)**2
+  u(1,2) = 2. * ( q(2,iq)*q(3,iq) + q(1,iq)*q(4,iq) )
+  u(1,3) = 2. * ( q(2,iq)*q(4,iq) - q(1,iq)*q(3,iq) )
+  u(2,1) = 2. * ( q(2,iq)*q(3,iq) - q(1,iq)*q(4,iq) )
+  u(2,2) = q(1,iq)**2 + q(3,iq)**2 - q(2,iq)**2 - q(4,iq)**2
+  u(2,3) = 2. * ( q(3,iq)*q(4,iq) + q(1,iq)*q(2,iq) )
+  u(3,1) = 2. * ( q(2,iq)*q(4,iq) + q(1,iq)*q(3,iq) )
+  u(3,2) = 2. * ( q(3,iq)*q(4,iq) - q(1,iq)*q(2,iq) )
+  u(3,3) = q(1,iq)**2 + q(4,iq)**2 - q(2,iq)**2 - q(3,iq)**2
+
   ! Rotating-translating the whole protein
 
   do i = 1, na
