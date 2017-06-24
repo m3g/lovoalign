@@ -26,7 +26,7 @@ Currently the package is mostly developed for linux/unix users. Under those syst
     make
 ```
 
-(You must have the gfortran compiler installed). This will create a "lovoalign" executable file in the "lovoalign/bin" directory. Add this directory to your path. 
+(You must have the gfortran compiler and Lapack installed). This will create a "lovoalign" executable file in the "lovoalign/bin" directory. Add this directory to your path. 
 
 The directory lovoalign/input contains an example input file for the "lovoalign.sh"
 script, which is mostly self-explicative, but required the Visual Molecular Dynamics (VMD) package. With this input file, run lovoalign.sh with:
