@@ -22,7 +22,7 @@ subroutine writepdb(pdbout,protea,prota,chaina,beta1,ocup1,&
   logical :: all, mark, error, beta1, ocup1
 
   ! For dsyev
-  real :: work(12)
+  double precision :: work(12)
   integer :: info
 
   ! Reading the original CA coordinates

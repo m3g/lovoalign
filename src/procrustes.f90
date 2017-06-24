@@ -30,7 +30,7 @@ subroutine procrustes(nbij,na,bije,xvar,yref)
                       a(4,4), u(3,3), xvar(maxatom, 3), vecaux(3),&
                       yref(maxatom,3)
   ! For dsyev
-  real :: work(12)
+  double precision :: work(12)
   integer :: info
 
   ! Safeguard for the case in which the bijection contains only one atom

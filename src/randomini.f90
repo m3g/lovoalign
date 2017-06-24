@@ -15,7 +15,7 @@ subroutine randomini(na,nb,prota,protb,nbij,bije)
   call random_number(random)
   ia = int(random*(na-nbij))+1
 
-  if ( seqtype == 1 .or. seqtype == 2 ) then
+  if ( seqtype > 0 ) then
     do i = 1, nbij
       bije(i,1) = fixbije(ia+i-1,1)
       bije(i,2) = fixbije(ia+i-1,2)
