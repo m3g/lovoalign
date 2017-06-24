@@ -46,9 +46,10 @@ git commit -m "Changed version file to $version"
 git tag -a $version -m "Release $version"
 git push origin master tag $version
 
-
+today=`date +"%b %d, %Y"`
 changelog="https://github.com/leandromartinez98/$package/releases/tag/$version"
-newline="<tr><td width=190px valign=top><a href=$giturl/archive/$version.tar.gz> $file </a></td><td><a target=_blank_ href=$changelog> Change log </a></td></tr>"
+newline="<tr><td width=190px valign=top><a href=$giturl/archive/$version.tar.gz> $file </a></td><td> Released on $today - <a target=_blank_ href=$changelog> [chan
+ge log at github]  </a></td></tr>"
 htmlfile=$downloads
 
 writeline=yes
