@@ -7,12 +7,14 @@ subroutine title()
   write(*,"(/,&
      &'  ',71('#'),/,&
      &/,&
-     &'                           PROGRAM: LOVOALIGN',/,&
-     &'                   Low Order Value Optimization Methods',/,&
-     &'                          for Protein Alignment',/,&
+     &'                                LOVOALIGN',/,&
+     &'             Convergent algorithms for protein structural alignment',/,&
+     &'     Martinez, Andreani, and Martinez, BMC Bioinformatics, 8:306, 2007',/,&
      &'                              Version 17.174 ',/&
      &/,&
      &'  ',71('#'))")
 
 end subroutine title
+
+
 
