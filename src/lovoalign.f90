@@ -64,8 +64,9 @@
 !                          and for small RMSD cutoff output for other methods.
 !    -gdt_threshold [real] Threshold distance for GDT scores (default: 4.d0)
 !    -seqoff               Do not write sequence alignment
-!    -seqfix               Use a fixed sequence alignment (1-1,2-2,...)
+!    -seqfix               Use a fixed sequence alignment according to order of PDB file (1-1,2-2,...)
 !    -seqnum               Use a fixed sequence alignment, according to residue numbers
+!    -fasta [filename]     Use a fixed sequence alignment given in a fasta-format alignment file
 !    -rmsf [filename]      Write rmsf profile to file.
 !    -rmsftrend [filename] Write rmsf profile trend to file (fraction of pairs
 !                          with rmsf smaller than threshold)
