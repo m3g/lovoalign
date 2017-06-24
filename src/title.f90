@@ -10,7 +10,7 @@ subroutine title()
      &'                                LOVOALIGN',/,&
      &'             Convergent algorithms for protein structural alignment',/,&
      &'     Martinez, Andreani, and Martinez, BMC Bioinformatics, 8:306, 2007',/,&
-     &'                              Version 17.174 ',/&
+     &'                              Version 17.175 ',/&
      &/,&
      &'  ',71('#'))")
 
