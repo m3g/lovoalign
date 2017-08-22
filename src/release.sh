@@ -11,7 +11,7 @@ downloads=~/public_html/lovoalign/versionhistory/downloads.html
 
 # GIT URL:
 
-giturl=https://github.com/leandromartinez98/lovoalign/archive
+giturl=https://github.com/leandromartinez98/lovoalign
 
 # Name of file containing version number
 
