@@ -83,8 +83,7 @@ program lovoalign
   use file_operations
   use initrandom
   implicit none
-  integer :: i, j, narg, mode, &
-             na, nb, iargc, &
+  integer :: i, j, narg, na, nb, iargc, &
              nfiles, numa(maxatom), numb(maxatom), &
              indisord(maxatom-1,maxatom)
   double precision :: prota(maxatom,3), protb(maxatom,3), &

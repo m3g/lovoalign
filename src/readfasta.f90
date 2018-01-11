@@ -1,4 +1,4 @@
-!
+
 ! Subroutine that reads the sequence alignment in fasta
 ! format
 !
@@ -10,6 +10,7 @@ subroutine readfasta()
   implicit none
   integer :: i, j, k, ioerr
   character(len=200) :: record
+  type(fasta_sequence) :: fastatemp
   integer :: length
   logical :: empty_char
 
@@ -36,10 +37,20 @@ subroutine readfasta()
       end if
     end do
   end do
+ 
+  ! If this is the aligment of a protein to a database, invert the 
+  ! first and second proteins of the alignment, because the fixed protein
+  ! is the second protein in the database alignment
+
+  if ( mode == 1 ) then
+    fastatemp = fasta(2)
+    fasta(2) = fasta(1)
+    fasta(1) = fastatemp
+  end if
 
   !write(*,*) ' FASTA alignment: '
   !write(*,*) trim(adjustl(fasta(1)%seq))
-  !write(*,*) trim(adjustl(fasta(2)%seq))
+  !write(*,*) trim(adjustl(fasta(3)%seq))
   !stop
 
 end subroutine readfasta

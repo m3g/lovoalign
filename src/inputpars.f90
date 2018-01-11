@@ -2,6 +2,7 @@
 
 module inputpars
 
+  integer :: mode
   integer :: method, maxit, iprint, nglobal, maxtrial
   integer :: rmin1, rmin2, rmax1, rmax2
   double precision :: gap, dtri, gdt_threshold 
