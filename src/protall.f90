@@ -39,6 +39,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
 
   ! Define the fixed sequence alignment, if it is the case
 
+  ! Fixed alignment: 1:1-2:2-etc.
   if ( seqtype == 1 ) then
     fixnbij = min(na,nb)
     do i = 1, fixnbij
@@ -46,6 +47,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       fixbije(i,2) = i 
     end do
   end if
+  ! Fixed alignment based on residue numbers
   if ( seqtype == 2 ) then
     fixnbij = 0 
     jlast = 1
@@ -61,6 +63,7 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
       end do
     end do aatoms
   end if
+  ! Fasta alignment 
   if ( seqtype == 3 ) then
     fixnbij = 0
     i = 1
