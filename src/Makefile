@@ -76,7 +76,7 @@ lovoalign : $(MODULES) $(FILES)
 devel: $(MODULES) $(FILES)
 	@echo " ------------------------------------------------------ " 
 	@echo " Compiling LovoAlign with $(FORTRAN) " 
-	@echo " Flags: -Wall -fbounds-check -llapack" 
+	@echo " Flags: -Wall -fbounds-check -llapack -fbacktrace -ffpe-trap=list" 
 	@echo " ------------------------------------------------------ " 
 	@$(FORTRAN) -o $(BIN)/lovoalign  $(MODULES) $(FILES) -llapack -Wall -fbounds-check 
 	@echo " LovoAlign succesfully built." 

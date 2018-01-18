@@ -40,48 +40,54 @@ subroutine protall(prota,protb,na,nb,disord,indisord,resa,resb,numa,numb)
   ! Define the fixed sequence alignment, if it is the case
 
   ! Fixed alignment: 1:1-2:2-etc.
-  if ( seqtype == 1 ) then
-    fixnbij = min(na,nb)
-    do i = 1, fixnbij
-      fixbije(i,1) = i 
-      fixbije(i,2) = i 
-    end do
-  end if
-  ! Fixed alignment based on residue numbers
-  if ( seqtype == 2 ) then
-    fixnbij = 0 
-    jlast = 1
-    aatoms : do i = 1, na
-      do j = jlast, nb
-        if ( numa(i) == numb(j) ) then
-          fixnbij = fixnbij + 1
-          fixbije(fixnbij,1) = i
-          fixbije(fixnbij,2) = j
-          jlast = j
-          cycle aatoms
-        end if
+  if ( seqtype > 0 ) then
+    if ( seqtype == 1 ) then
+      fixnbij = min(na,nb)
+      do i = 1, fixnbij
+        fixbije(i,1) = i 
+        fixbije(i,2) = i 
       end do
-    end do aatoms
-  end if
-  ! Fasta alignment 
-  if ( seqtype == 3 ) then
-    fixnbij = 0
-    i = 1
-    j = 1
-    ii = 1
-    jj = 1
-    do while( ii <= na .and. jj <= nb ) 
-      if ( fasta(1)%seq(i:i) /= "-" .and. &
-           fasta(2)%seq(j:j) /= "-") then
-        fixnbij = fixnbij + 1
-        fixbije(fixnbij,1) = ii
-        fixbije(fixnbij,2) = jj
-      end if
-      if ( fasta(1)%seq(i:i) /= "-" ) ii = ii + 1
-      if ( fasta(2)%seq(j:j) /= "-" ) jj = jj + 1
-      i = i + 1
-      j = j + 1
-    end do
+    end if
+    ! Fixed alignment based on residue numbers
+    if ( seqtype == 2 ) then
+      fixnbij = 0 
+      jlast = 1
+      aatoms : do i = 1, na
+        do j = jlast, nb
+          if ( numa(i) == numb(j) ) then
+            fixnbij = fixnbij + 1
+            fixbije(fixnbij,1) = i
+            fixbije(fixnbij,2) = j
+            jlast = j
+            cycle aatoms
+          end if
+        end do
+      end do aatoms
+    end if
+    ! Fasta alignment 
+    if ( seqtype == 3 ) then
+      fixnbij = 0
+      i = 1
+      j = 1
+      ii = 1
+      jj = 1
+      do while( ii <= na .and. jj <= nb ) 
+        if ( fasta(1)%seq(i:i) /= "-" .and. &
+             fasta(2)%seq(j:j) /= "-") then
+          fixnbij = fixnbij + 1
+          fixbije(fixnbij,1) = ii
+          fixbije(fixnbij,2) = jj
+        end if
+        if ( fasta(1)%seq(i:i) /= "-" ) ii = ii + 1
+        if ( fasta(2)%seq(j:j) /= "-" ) jj = jj + 1
+        i = i + 1
+        j = j + 1
+      end do
+    end if
+    if ( fixnbij < 4 ) then
+      write(*,*) ' ERROR: Less than 4 atoms are associated in the sequence alignment '
+      stop
+    end if
   end if
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

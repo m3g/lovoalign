@@ -217,6 +217,7 @@ program lovoalign
     ! Do dynamic programming with these pseudoproteins and return the
     ! proteins ready for structural alignment
 
+
     if(useini) then
       call initial(pseudoa,pseudob,na,nb,prota,protb)
     else
