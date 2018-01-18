@@ -30,7 +30,7 @@ subroutine procrustes(nbij,na,bije,xvar,yref)
                       a(4,4), u(3,3), xvar(maxatom, 3), vecaux(3),&
                       yref(maxatom,3)
   ! For dsyev
-  double precision :: work(12)
+  double precision :: work(11)
   integer :: info
 
   ! Safeguard for the case in which the bijection contains only one atom
@@ -124,7 +124,7 @@ subroutine procrustes(nbij,na,bije,xvar,yref)
      
   ! Computing the eigenvectors 'a' and eigenvalues 'q' of the q matrix
 
-  call dsyev('V','U',4,q,4,a,work,12,info)
+  call dsyev('V','U',4,q,4,a,work,11,info)
 
   ! Computing the rotation matrix
 
