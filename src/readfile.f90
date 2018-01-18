@@ -19,17 +19,6 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
   error = .false. 
 
   !
-  ! Trying to read coordinates in the simple xyz (only coordinates) format
-  !
-
-  open(10,file=protea(1:length(protea)),status='old',iostat=ioerr)
-  if ( ioerr /= 0 ) then
-    write(*,*) ' ERROR: Could not open file:',protea(ic(protea):length(protea))
-    error=.true.
-    return
-  end if
-
-  !
   ! Trying to read coordinates in pdb format
   !
 
