@@ -82,6 +82,7 @@ program lovoalign
   use ioformat
   use file_operations
   use initrandom
+  use warnings
   implicit none
   integer :: i, j, narg, na, nb, iargc, &
              nfiles, numa(maxatom), numb(maxatom), &
@@ -93,6 +94,7 @@ program lovoalign
   logical :: error
   character(len=1) :: resa(maxatom), resb(maxatom)
   character(len=200) :: record, pdbfiles(maxfiles), file1, file2
+  character(len=24) :: score_name
 
   ! Computing running time
 
@@ -105,6 +107,7 @@ program lovoalign
 
   mode = 0
   narg = iargc()
+  nwarn = 0
  
   ! If there are no command line arguments, print instructions
 
@@ -183,8 +186,12 @@ program lovoalign
     max_filename_size = max(length(remove_path(protea)),length(remove_path(proteb)))
     call outputformats()
     if(iprint.eq.0) then
+      if(method.eq.1) score_name="STRUCTAL" 
+      if(method.eq.2) score_name="TM-SCORE" 
+      if(method.eq.3) score_name="TRIANGULAR" 
+      if(method.eq.4) score_name="NON-BIJECTIVE TRIANGULAR" 
       write(*,header_list) trim(adjustl(basename(protea))), &
-                           trim(adjustl(basename(proteb))), "none", 1, dtri
+                           trim(adjustl(basename(proteb))), "none", 1, trim(score_name), dtri
     end if
 
     ! Read protein coordinates
@@ -267,10 +274,14 @@ program lovoalign
     call readlist(pdblist,pdbfiles,nfiles)
     max_filename_size = max(max_filename_size,length(remove_path(proteb)))
     call outputformats()
+    if(method.eq.1) score_name="STRUCTAL" 
+    if(method.eq.2) score_name="TM-SCORE" 
+    if(method.eq.3) score_name="TRIANGULAR" 
+    if(method.eq.4) score_name="NON-BIJECTIVE TRIANGULAR" 
     if(iprint.eq.0) write(*,header_list) "from list", &
                                          trim(adjustl(proteb)), &
                                          trim(adjustl(pdblist)), &
-                                         nfiles, dtri
+                                         nfiles, trim(score_name), dtri
 
     ! Start alignments
 
@@ -340,10 +351,14 @@ program lovoalign
 
     call readlist(pdblist,pdbfiles,nfiles)
     call outputformats()
+    if(method.eq.1) score_name="STRUCTAL" 
+    if(method.eq.2) score_name="TM-SCORE" 
+    if(method.eq.3) score_name="TRIANGULAR" 
+    if(method.eq.4) score_name="NON-BIJECTIVE TRIANGULAR" 
     if(iprint.eq.0) write(*,header_list) "from list", &
                                          "from list", &
                                          trim(adjustl(pdblist)), &
-                                         nfiles, dtri
+                                         nfiles, trim(score_name), dtri
 
     ! For non-bijective methods, get the number of atoms of all proteins
     ! and order them from biggest to smallest. 

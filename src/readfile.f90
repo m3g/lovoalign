@@ -6,6 +6,7 @@
 subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all,error)
 
   use sizes
+  use warnings
   implicit none
   integer :: na, length, ic, numa(maxatom),ioerr
   integer :: rmin1, rmax1, resnum
@@ -103,12 +104,14 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
         end if
       end if
 
-      ! Default: Reading coordinates for CA atoms only
+    ! Default: Reading coordinates for CA atoms only
 
     else 
       if(record(1:4).eq.'ATOM'.and.&
          (record(14:15).eq.'CA'.or.record(13:14).eq.'CA').and.&
          (record(22:22).eq.chaina.or.chaina.eq.'#')) then
+
+        ! Check if occupancy is set, if only atoms with occupancy are to be considered
 
         if(ocup1) read(record(55:60),*,iostat=ioerr) occupancy
         if ( ioerr /= 0 ) then
@@ -120,6 +123,8 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
           return
         end if
 
+        ! Check if beta is set, if only atoms with beta are to be considered
+
         if(beta1) read(record(61:66),*,iostat=ioerr) beta
         if ( ioerr /= 0 ) then
           write(*,*) ' ERROR: Tried to read beta factor from file: ',&
@@ -130,14 +135,19 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
           return
         end if
 
-        read(record(23:26),*,iostat=ioerr) resnum 
+        ! Check if this residue has index within the range desired
+
+        read(record(23:26),*,iostat=ioerr) resnum
         if ( ioerr == 0 ) then
           if ( resnum < rmin1 .or. resnum > rmax1 ) cycle
         end if
 
+        ! If got here, reading is fine, lets check if this is an atom set to be read
+
         if( ( .not.ocup1 .and. .not.beta1 ) .or.&
             ( ocup1 .and. occupancy.gt.0. ) .or.&
             ( beta1 .and. beta.gt.0. ) ) then 
+
           na = na + 1
           if(na.gt.maxatom) then 
             write(*,*) ' ERROR: ',protea(ic(protea):length(protea)),&
@@ -145,6 +155,32 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
             error=.true.
             return
           end if                              
+
+          ! Reading residue name and getting one-letter code
+      
+          read(record(18:20),*,iostat=ioerr) resid
+          if ( ioerr /= 0 ) resid = 'XXX'
+          resa(na) = letter(resid)
+
+          ! Reading the residue number
+
+          read(record(23:26),*,iostat=ioerr) numa(na)
+          if ( ioerr /= 0 ) numa(na) = na
+
+          ! Check if this is a repeated atom from an alternate conformation
+      
+          if ( na > 1 ) then
+            if ( numa(na) == numa(na-1) .and. &
+                 resa(na) == resa(na-1) ) then
+              nwarn = nwarn + 1
+              write(warn(nwarn),"(a,a,a,i5)") trim(protea), " - skiping alternate conformation of ", resa(na), numa(na)
+              na = na - 1
+              cycle
+            end if
+          end if
+
+          ! Finally, read the coordinates
+
           read(record(31:38),*,iostat=ioerr) prota(na,1)
           if ( ioerr /= 0 ) error = .true.
           read(record(39:46),*,iostat=ioerr) prota(na,2)
@@ -156,18 +192,8 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
                        protea(ic(protea):length(protea))
             return
           end if
+
         end if
-
-        ! Reading residue name and getting one-letter code
-      
-        read(record(18:20),*,iostat=ioerr) resid
-        if ( ioerr /= 0 ) resid = 'XXX'
-        resa(na) = letter(resid)
-
-        ! Reading the residue number
-
-        read(record(23:26),*,iostat=ioerr) numa(na)
-        if ( ioerr /= 0 ) numa(na) = na
 
       end if
     end if
@@ -193,7 +219,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
     return
   end if
 
-! If the number of atoms is greater than maxatom, report error
+  ! If the number of atoms is greater than maxatom, report error
 
   if(na.gt.maxatom) then
     write(*,*) ' ERROR: Number of atoms to be read in file',&

@@ -52,7 +52,7 @@ module ioformat
                &'# Prot B: Target (fixed) protein: ',a,/,&
                &'# PDB file list: ',a,/,&
                &'# Number of files in list: ',i8,/,&
-               &'# SCORE: Best score obtained.',/,&
+               &'# SCORE: Best ',a,' score obtained. ',/,&
                &'# COV: Coverage (number of corresponding atoms).',/,&
                &'# RMSD: Root mean square deviation of COV atoms.',/,&
                &'# COV2: Number of atoms closer than ',f8.3,' Angstroms.',/,&

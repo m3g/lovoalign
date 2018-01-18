@@ -24,6 +24,7 @@ MODULES = sizes.f90             \
           inputpars.f90         \
           file_operations.f90   \
           initrandom.f90        \
+          warnings.f90          \
           ioformat.f90 
 FILES = lovoalign.f90     \
         computegdt.f90    \

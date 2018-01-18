@@ -8,8 +8,9 @@ subroutine printdata(protea,proteb,na,nb,chaina,&
 
   use ioformat
   use bijetype
+  use warnings
   implicit none
-  integer :: na, nb, maxit, method, length, ic
+  integer :: na, nb, maxit, method, length, ic, i
   double precision :: gap, dtri, gdt_threshold
   character(len=1) :: chaina, chainb
   character(len=200) :: protea, proteb
@@ -20,6 +21,11 @@ subroutine printdata(protea,proteb,na,nb,chaina,&
   write(*,*) ' Protein A: ', protea(ic(protea):length(protea))
   write(*,*) ' Protein B: ', proteb(ic(proteb):length(proteb))
   write(*,*) ' Number of atoms: A:', na, ' B:', nb
+  if ( nwarn > 0 ) then
+    do i = 1, nwarn
+      write(*,"(a,a)") "  Warning: ", trim(warn(i))
+    end do
+  end if
   if(chaina.ne.'#') write(*,*) ' Protein A chain: ', chaina
   if(chainb.ne.'#') write(*,*) ' Protein B chain: ', chainb
   if(method.eq.1) write(*,*) ' Will maximize the STRUCTAL score'
