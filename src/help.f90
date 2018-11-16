@@ -31,6 +31,7 @@ subroutine help
   write(*,*) ' -dtri [real] Atoms farther than this will not be'
   write(*,*) '        considered. Distance for Triangular score.'
   write(*,*) ' -rmsf [file] Print RMSF plot to file.'
+  write(*,*) ' -all Consider all atoms (not only CA)'
   write(*,*)
   write(*,*) ' Other options and instructions can be found at  '
   write(*,*) ' the initial source code comments and at: '

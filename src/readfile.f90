@@ -205,7 +205,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
   if(na.eq.0) then
     write(*,*) ' ERROR: Could not read coordinates from',&
                ' file: ', protea(ic(protea):length(protea)),','
-    write(*,*) '        or some selection has no atoms.' 
+    write(*,*) '        or some selection has no atoms (perhaps missing -all?).' 
     error=.true.
     return
   end if
