@@ -22,7 +22,7 @@ subroutine help
   write(*,*) ' -m 2   Maximize TM-SCORE '
   write(*,*) ' -m 3   Maximize Triangular score '
   write(*,*) ' -c1 A  Consider only chain A of protein 1 '
-  write(*,*) ' -c2 A  Consider only chian A of protein 2 '
+  write(*,*) ' -c2 A  Consider only chain A of protein 2 '
   write(*,*) ' -beta1 Consider atoms with beta > 0 in protein 1'
   write(*,*) ' -beta2 Consider atoms with beta > 0 in protein 2'
   write(*,*) ' -ocup1 Consider atoms with occupancy > 0 in protein 1'
