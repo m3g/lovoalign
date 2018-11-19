@@ -213,7 +213,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
   ! With less than tree CA atoms we are not talking about a protein
 
   if(na.lt.3) then
-    write(*,*) ' ERROR: Protein with less than three atoms:',&
+    write(*,*) ' ERROR: Protein with less than three residues:',&
                protea(ic(protea):length(protea))
     error=.true.
     return
