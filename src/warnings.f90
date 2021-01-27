@@ -3,7 +3,8 @@
 !
 module warnings
 
+  integer, parameter :: maxwarn = 100
   integer :: nwarn
-  character(len=200) :: warn(100)
+  character(len=200) :: warn(maxwarn)
 
 end module warnings

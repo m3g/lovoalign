@@ -308,13 +308,15 @@ c Test nonnegativity of diagonal
       z = 0.d0
       if(j.gt.1)then
       do 3 k=1,j-1
-3      z = z + a(i,k) * a(j,k)
+      z = z + a(i,k) * a(j,k)
+3     continue
       endif
       a(i,j) = (a(i,j) - z)/a(j,j)
 2      continue
       z = 0.d0
       do 4 j=1,i-1
-4      z = z + a(i,j)**2
+      z = z + a(i,j)**2
+4     continue
       temp = a(i, i) - z
 
 c   Test positive definiteness
@@ -348,7 +350,8 @@ c   Restore lower triangular part
       do 1 i=2,n
       z = 0.d0
       do 2 j=1,i-1
-2      z = z + a(i,j)*aux(j)
+       z = z + a(i,j)*aux(j)
+2     continue
       aux(i) = (b(i) - z) / a(i,i)
 1      continue
       endif
@@ -357,7 +360,8 @@ c   Restore lower triangular part
       do 3 i=n-1,1,-1
       z = 0.d0
       do 4 j=i+1,n
-4      z = z + a(j,i)*x(j)
+       z = z + a(j,i)*x(j)
+4     continue
       x(i) = (aux(i) - z)/a(i,i)
 3      continue
       return

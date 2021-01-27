@@ -6,7 +6,7 @@
 #
 FORTRAN = gfortran
 #
-FLAGS = -O3 -ffast-math -llapack
+FLAGS = -O3 -ffast-math -llapack # -fbounds-check
 #
 ###################################################################
 #                                                                 #

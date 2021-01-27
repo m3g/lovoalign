@@ -173,7 +173,9 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
             if ( numa(na) == numa(na-1) .and. &
                  resa(na) == resa(na-1) ) then
               nwarn = nwarn + 1
-              write(warn(nwarn),"(a,a,a,i5)") trim(protea), " - skiping alternate conformation of ", resa(na), numa(na)
+              if ( nwarn <= maxwarn ) then
+                write(warn(nwarn),"(a,a,a,i5)") trim(protea), " - skiping alternate conformation of ", resa(na), numa(na)
+              end if
               na = na - 1
               cycle
             end if
