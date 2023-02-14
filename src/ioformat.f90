@@ -5,11 +5,12 @@
 module ioformat
 
   implicit none
+  integer, parameter :: max_string_length = 200
   character(len=*), parameter :: dash_line = "('  ',71('-'))"
-  character(len=200) :: hash_line
+  character(len=max_string_length) :: hash_line
   character(len=1000) :: header_list
-  character(len=200) :: title_format, data_format, trial_format
-  character(len=200) :: concise_format
+  character(len=max_string_length) :: title_format, data_format, trial_format
+  character(len=max_string_length) :: concise_format
   integer :: max_filename_size
 
   contains
@@ -37,10 +38,10 @@ module ioformat
       write(ichar(3),"(i3)") imax
       ichar(1) = adjustl(ichar(1))
       ichar(2) = adjustl(ichar(2))
-      do i = 1, imax
+      do i = 1, min(imax,max_string_length)
         hash_line(i:i) = "#"
       end do
-      do i = imax + 1, 200
+      do i = imax + 1, max_string_length
         hash_line(i:i) = " "
       end do
 
