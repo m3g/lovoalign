@@ -2,11 +2,13 @@
 ! One letter amino acid codes for printing sequence alignment
 !
 
-character function letter(resid)
+character function letter(resid_in)
 
   implicit none
+  character*5 resid_in
   character*3 resid
 
+  resid = trim(adjustl(resid_in))
   if(resid.eq.'ALA') then
     letter = 'A'
   else if(resid.eq.'ARG') then

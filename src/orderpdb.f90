@@ -26,7 +26,7 @@ subroutine orderpdb(pdbfiles,nfiles)
       read(10,"(a200)",iostat=ioerr) record
       if ( ioerr /= 0 ) exit 
       if(natoms(i).ge.1.and.record(1:3).eq.'END') exit
-      if(record(1:4).eq.'ATOM'.and.record(14:15).eq.'CA') natoms(i) = natoms(i) + 1.
+      if(record(1:4).eq.'ATOM'.and.trim(adjustl(record(13:16))).eq.'CA') natoms(i) = natoms(i) + 1.
     end do
     close(10)
   end do

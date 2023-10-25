@@ -14,7 +14,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
   double precision :: prota(maxatom,3)
   logical :: all, error, beta1, ocup1
   character(len=1) :: chaina, resa(maxatom), letter
-  character(len=3) :: resid
+  character(len=5) :: resid
   character(len=200) :: protea, record
 
   error = .false. 
@@ -42,7 +42,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
       if((record(1:4).eq.'ATOM'.or.record(1:6).eq.'HETATM').and.&
          (record(22:22).eq.chaina.or.chaina.eq.'#')) then
        
-        if(ocup1) read(record(55:60),*,iostat=ioerr) occupancy
+        if(ocup1) read(record(56:60),*,iostat=ioerr) occupancy
         if ( ioerr /= 0 ) then
           write(*,*) ' ERROR: Tried to read occupancy from file: ',&
                      protea(ic(protea):length(protea)),&
@@ -91,7 +91,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
 
           ! Reading residue name and getting one-letter code
       
-          read(record(18:20),*,iostat=ioerr) resid
+          read(record(17:21),*,iostat=ioerr) resid
           if ( ioerr /= 0 ) resid = 'XXX'
           resa(na) = letter(resid)
 
@@ -108,12 +108,12 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
 
     else 
       if(record(1:4).eq.'ATOM'.and.&
-         (record(14:15).eq.'CA'.or.record(13:14).eq.'CA').and.&
+         (trim(adjustl(record(13:16))).eq.'CA').and.&
          (record(22:22).eq.chaina.or.chaina.eq.'#')) then
 
         ! Check if occupancy is set, if only atoms with occupancy are to be considered
 
-        if(ocup1) read(record(55:60),*,iostat=ioerr) occupancy
+        if(ocup1) read(record(56:60),*,iostat=ioerr) occupancy
         if ( ioerr /= 0 ) then
           write(*,*) ' ERROR: Tried to read occupancy from file: ',&
                      protea(ic(protea):length(protea)),&
@@ -158,7 +158,7 @@ subroutine readfile(protea,prota,chaina,beta1,ocup1,rmin1,rmax1,na,resa,numa,all
 
           ! Reading residue name and getting one-letter code
       
-          read(record(18:20),*,iostat=ioerr) resid
+          read(record(17:21),*,iostat=ioerr) resid
           if ( ioerr /= 0 ) resid = 'XXX'
           resa(na) = letter(resid)
 
