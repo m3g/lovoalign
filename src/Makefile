@@ -6,7 +6,10 @@
 #
 FORTRAN = gfortran
 #
-FLAGS = -O3 -ffast-math -llapack # -fbounds-check
+# These flags assumes that lapack is installed system-wide
+FLAGS = -O3 -ffast-math -llapack
+# These are the flags necessary for using a local lapack library
+#FLAGS = -O3 -ffast-math -L$HOME/.local/lapack -llapack -lblas 
 #
 ###################################################################
 #                                                                 #
