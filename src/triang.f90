@@ -32,7 +32,7 @@ subroutine triang(prota,protb,na,nb,dtri2,gap,bije,nbij,&
                       bijscore(maxatom), dmin
 
   ! If using a fixed bijection, just compute score and return
-  
+  minpair = 0 ! to avoid compiler warning
   if ( seqtype == 1 .or. seqtype == 2 ) then
     score = 0.d0
     nbij = 0
