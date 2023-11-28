@@ -1,3 +1,7 @@
 *.mod
 *.o
 *bin/lovoalign
+CMakeFiles/*
+cmake_install.cmake
+CMakeCache.txt
+Makefile
