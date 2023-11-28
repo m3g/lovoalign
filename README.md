@@ -26,7 +26,7 @@ Currently the package is mostly developed for linux/unix users. Under those syst
     make
 ```
 
-(You must have the gfortran compiler and Lapack installed). This will create a "lovoalign" executable file in the "lovoalign/bin" directory. Add this directory to your path. 
+(You must have the gfortran compiler and Lapack installed [[see these notes]](#installing-lapack)). This will create a "lovoalign" executable file in the "lovoalign/bin" directory. Add this directory to your path. 
 
 The directory lovoalign/input contains an example input file for the "lovoalign.sh"
 script, which is mostly self-explicative, but required the Visual Molecular Dynamics (VMD) package. With this input file, run lovoalign.sh with:
@@ -62,3 +62,46 @@ Otherwise, the "lovoalign" executable can be run as a standalone program, as ind
 > [article](http://www.springerlink.com/content/hw66734228844619/)
 
 For full text articles go to http://www.ime.unicamp.br/~martinez/lovoalign
+
+### Installing lapack
+
+To compile `lovoalign`, you need first a fortran compiler. Typically the `gfortran` compiler can be installed using the package
+manager of any linux system. On debian-based systems use, for example,
+```
+sudo apt install gfortran
+```
+
+You also need the `lapack` library. In debian-based systems, it can be installed with:
+```
+sudo apt install liblapack-dev
+```
+with that, just follow the compilation instructions provided above.
+
+Other distributions probably have a lapack library available, but the package name might vary. Alternativelly, you can 
+install and use local version of `lapack`, with:
+
+1. Download and compile lapack:
+   ```bash
+   git clone https://github.com/Reference-LAPACK/lapack
+   cd lapack
+   mkdir build
+   cd build
+   cmake -DCMAKE_INSTALL_LIBDIR=$HOME/.local/lapack ..
+   cmake --build . -j --target install
+   ```
+2. Download lovoalign and edit the `lovoalign/src/Makefile` file:
+   Change the `FLAGS` line to:
+   ```
+   FLAGS = -O3 -ffast-math -L$HOME/.local/lapack -llapack -lblas
+   ```
+
+3. Compile `lovoalign` as usual:
+   ```
+   cd lovoalign/src
+   make
+   ```
+
+This should build the `lovoalign` executable in the directory `/lovoalign/bin`. 
+
+
+
