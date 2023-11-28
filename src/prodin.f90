@@ -90,6 +90,8 @@ subroutine prodin(na,nb,scorin,gap,ngaps,bije,nbij,bijscore,scomax)
       
   ! Now will compute the score to the end
 
+  imax = 0 ! avoid warning
+  jmax = 0 ! avoid warning 
   scomax = 0.d0
   do j = 1, nl
     if(gaf(1,j).ge.scomax) then
