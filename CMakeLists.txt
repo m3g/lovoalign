@@ -77,7 +77,5 @@ else()
     target_link_libraries(lovoalign PRIVATE ${LIBBLASTRAMPOLINE})
 endif()
 
-target_link_libraries(lovoalign PRIVATE LAPACK::LAPACK)
-
 # Installation directive
 install(TARGETS lovoalign DESTINATION bin)
