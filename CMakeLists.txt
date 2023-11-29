@@ -1,14 +1,10 @@
-#include(FetchContent)
-#FetchContent_Declare(
-#  lapack
-#  GIT_REPOSITORY https://github.com/Reference-LAPACK/lapack 
-#  GIT_TAG        04b044e020a3560ccfa9988c8a80a1fb7083fc2e # release 3.12.0
-#)
-#FetchContent_MakeAvailable(lapack)
-#find_package(lapack)
-
 cmake_minimum_required(VERSION 2.8.12)
 project(lovoalign Fortran)
+
+# Set the output directory for the executable
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+find_package(LAPACK)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -17,10 +13,12 @@ endif(NOT CMAKE_BUILD_TYPE)
 if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
     add_compile_options(
         -Wall "$<$<CONFIG:Debug>:-Werror>"
-        -llapack -lblas
         -fmax-stack-var-size=1296000000
     )
 endif()
+
+# Create the output directory
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Build the executable
 add_executable(lovoalign
@@ -70,6 +68,8 @@ add_executable(lovoalign
         src/flashsort.f90
         src/optim.f 
 )
+
+target_link_libraries(lovoalign PRIVATE LAPACK::LAPACK)
 
 # Installation directive
 install(TARGETS lovoalign DESTINATION bin)
