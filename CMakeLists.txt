@@ -4,17 +4,18 @@ project(lovoalign Fortran)
 # Set the output directory for the executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-find_package(LAPACK)
+# Find LAPACK or LIBBLASTRAMPOLINE
+find_package(LAPACK QUIET)
+if(NOT LAPACK_FOUND)
+    find_library(LIBBLASTRAMPOLINE NAMES blastrampoline)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
-    add_compile_options(
-        -Wall "$<$<CONFIG:Debug>:-Werror>"
-        -fmax-stack-var-size=1296000000
-    )
+    add_compile_options( -Wall "$<$<CONFIG:Debug>:-Werror>" -frecursive )
 endif()
 
 # Create the output directory
@@ -68,6 +69,13 @@ add_executable(lovoalign
         src/flashsort.f90
         src/optim.f 
 )
+
+# Link LAPACK or LIBBLASTRAMPOLINE
+if(LAPACK_FOUND)
+    target_link_libraries(lovoalign PRIVATE LAPACK::LAPACK)
+else()
+    target_link_libraries(lovoalign PRIVATE ${LIBBLASTRAMPOLINE})
+endif()
 
 target_link_libraries(lovoalign PRIVATE LAPACK::LAPACK)
 
