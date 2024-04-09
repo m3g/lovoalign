@@ -6,7 +6,7 @@ Numerical experiments show that the LOVO algorithms implemented here provide the
 
 Simple input parameters can be used to align two structures, a single structure to a whole database, or to perform an all-on-all database structural alignment.
 
-See http://www.ime.unicamp.br/~martinez/lovoalign
+See https://m3g.github.io/lovoalign
 
 The present site is contains current and previous versions of the package.
 
