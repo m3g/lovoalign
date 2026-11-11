@@ -19,36 +19,58 @@ versionfile=./title.f90
 
 ####################################################################################################
 
-#git log --pretty=oneline 16.323...16.330 | awk '{$1=""; print "-"$0}'
+# Usage: ./release.sh <major|minor|patch|X.Y.Z>
+#   major|minor|patch : bump the corresponding field of the current version
+#   X.Y.Z             : set the version explicitly
+# The version follows semantic versioning (https://semver.org) and the git
+# tag is the version prefixed with "v" (e.g. v22.0.3).
 
-year=`date +%y`
-day=`date +%j`
-version="${year:0:1}${year:1:1}.$day"
+current=`grep -o "Version [0-9][0-9.]*" $versionfile | awk '{print $2}'`
+if [[ ! $current =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then
+  echo "Current version in $versionfile ($current) is not in X.Y.Z format."
+  echo "Provide the new version explicitly: ./release.sh X.Y.Z"
+  current=""
+fi
+IFS=. read -r major minor patch <<< "$current"
 
-file="$package-$version.tar.gz" 
-version_file=$version
+case "$1" in
+  major) [ -z "$current" ] && exit 1 ; version="$((major+1)).0.0" ;;
+  minor) [ -z "$current" ] && exit 1 ; version="$major.$((minor+1)).0" ;;
+  patch) [ -z "$current" ] && exit 1 ; version="$major.$minor.$((patch+1))" ;;
+  *)
+    if [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then
+      version=$1
+    else
+      echo "Usage: ./release.sh <major|minor|patch|X.Y.Z>   (current version: ${current:-unknown})"
+      exit 1
+    fi
+    ;;
+esac
 
-i=2
-while grep -q $file $downloads ; do
-  file=$package-$version.$i.tar.gz
-  version_file=$version.$i
-  i=`expr $i + 1`
-done
-version=$version_file
+tag="v$version"
+if git rev-parse -q --verify "refs/tags/$tag" > /dev/null ; then
+  echo "Tag $tag already exists."
+  exit 1
+fi
+
 file=$package-$version.tar.gz
+echo "Current version: ${current:-unknown}"
+echo "New version: $version (tag $tag)"
 echo "Will create file: $file"
+read -p "Proceed? [y/N] " answer
+[[ $answer =~ ^[Yy]$ ]] || exit 1
 
-cat $versionfile | sed -e "s/Version.*/Version\ $version \',\/\&/" > version_title_temp.f90
+cat $versionfile | sed -e "s/Version [0-9][0-9.]* /Version $version /" > version_title_temp.f90
 \mv -f version_title_temp.f90 $versionfile
 
 git add -A .
 git commit -m "Changed version file to $version"
-git tag -a $version -m "Release $version"
-git push origin master tag $version
+git tag -a $tag -m "Release $version"
+git push origin master tag $tag
 
 today=`date +"%b %d, %Y"`
-changelog="https://github.com/leandromartinez98/$package/releases/tag/$version"
-newline="<tr><td width=190px valign=top><a href=$giturl/archive/$version.tar.gz> $file </a></td><td> Released on $today - <a target=_blank_ href=$changelog> [change log at github]  </a></td></tr>"
+changelog="https://github.com/leandromartinez98/$package/releases/tag/$tag"
+newline="<tr><td width=190px valign=top><a href=$giturl/archive/$tag.tar.gz> $file </a></td><td> Released on $today - <a target=_blank_ href=$changelog> [change log at github]  </a></td></tr>"
 htmlfile=$downloads
 
 writeline=yes
@@ -72,7 +94,7 @@ mv htmlfile_new_temp $htmlfile
 echo "----------------------"
 echo "CHANGE LOG:"
 echo "----------------------"
-range=`git tag | tail -n 2 | xargs | sed 's! !...!'`
+range=`git tag --sort=v:refname -l 'v[0-9]*.[0-9]*.[0-9]*' | tail -n 2 | xargs | sed 's! !...!'`
 git log --pretty=oneline $range | awk '{$1=""; print "-"$0}'
 echo "----------------------"
 
