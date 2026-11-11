@@ -67,7 +67,7 @@ module ioformat
 
       write(concise_format,"(a,a3,a,a3,a)") &
                            "(t1,a,t",adjustl(ichar(1)),",a,t",adjustl(ichar(2)),&
-                           "f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)"
+                           ",f12.6,2(tr1,i5,tr1,f12.6),2(tr1,f8.3),tr1,f12.6)"
 
     end subroutine outputformats
 
